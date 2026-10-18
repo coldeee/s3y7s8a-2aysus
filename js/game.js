@@ -1,45 +1,9 @@
 'use strict';
-/* ================= БАЛАНС ================= */
-const CFG={days:7,startCoins:60,startHappy:60,startPeople:100,decisions:2,baseTax:10,perTax:20,
-  reqHappy:5,missHappy:-6,heartPoints:10,festCost:20,festBonus:10,festDays:3,stormCost:15,stormHappy:-10,stars:[120,160,195]};
-const B={
-  shop:  {name:'Магазины',cost:[20,30,45],eff:{income:8},color:'#ffe3b8',
-          desc:'Магазины приносят доход в бюджет города каждый день.',no:'Доход не вырастет, за покупками придётся далеко ходить.'},
-  homes: {name:'Жильё',cost:[25,35,50],eff:{people:40},color:'#ffd9c9',
-          desc:'Новые дома — новые жители. Каждые 20 жителей платят 1 монетку налога в день.',no:'Новые семьи не смогут переехать.'},
-  park:  {name:'Парк',cost:[15,25,40],eff:{happy:8},color:'#d3f2c8',
-          desc:'Место для прогулок и игр. Жители становятся счастливее.',no:'Детям негде гулять после школы.'},
-  school:{name:'Школа',cost:[25,35,50],eff:{happy:5,people:20},color:'#d6e8fb',
-          desc:'Больше кабинетов — детям удобнее учиться, и в город переезжают семьи.',no:'В школе останется тесно.'},
-  lights:{name:'Фонари',cost:[10,20,30],eff:{happy:5},color:'#fff3c2',
-          desc:'Вечером на улицах светло и спокойно.',no:'Вечером на улицах темно и неуютно.'}
-};
-const IDS=['homes','school','shop','lights','park'];
-const RESIDENTS=[
-  {who:'Маша',thanks:'Теперь мы гуляем до самого ужина!',complain:'Опять сидим по домам. Скукота…',name:'Маша, 10 лет',g:'f',text:'После школы мы с друзьями сидим по домам — на улице совсем нечем заняться.',target:'park',hair:'#6b3b1f',skin:'#f5c9a4',long:true,
-   hit:'Дети больше не скучают: в городе появилось, где гулять!',miss:'Дети снова сидят по домам: гулять негде'},
-  {who:'Папа Игорь',thanks:'Дочка идёт с кружка по светлой улице — я спокоен.',complain:'Встречаю дочку с фонариком, как в походе.',name:'Папа Игорь, 35 лет',g:'m',text:'Вечером уже темно, и я волнуюсь, когда дочка возвращается с кружка.',target:'lights',hair:'#3a2a1d',skin:'#e9b48c',beard:true,
-   hit:'На улицах светло: родители спокойны за детей',miss:'Вечером на улицах темно, родители волнуются'},
-  {who:'Бабушка Нина',thanks:'Хлеб теперь всегда свежий и рядом!',complain:'Опять тащу сумки через полгорода.',name:'Бабушка Нина, 68 лет',g:'f',text:'За хлебом и молоком приходится ездить на автобусе в соседний район.',target:'shop',hair:'#d4d4d4',skin:'#f3cfb3',long:true,
-   hit:'Бабушка Нина: «Теперь хлеб в двух шагах!»',miss:'Бабушка Нина опять едет за хлебом на автобусе'},
-  {who:'Аня',thanks:'Учимся с утра, а после уроков свободны!',complain:'Вторая смена: домой прихожу в темноте.',name:'Аня, 12 лет',g:'f',text:'У нас в классе 35 человек, и мы учимся во вторую смену.',target:'school',hair:'#2b1b12',skin:'#c98f6a',long:true,
-   hit:'Больше никакой второй смены: школа выросла!',miss:'Ученики всё ещё учатся во вторую смену'},
-  {who:'Семья Ивановых',thanks:'Переехали и уже знаем всех соседей!',complain:'Каждый день по часу в дороге…',name:'Семья Ивановых',g:'p',text:'Мы работаем в вашем городе, а живём далеко — каждый день час в дороге.',target:'homes',hair:'#8a5a2b',skin:'#f1c6a0',
-   hit:'Семья Ивановых переехала в город и уже полюбила его',miss:'Ивановы снова час едут на работу'},
-  {who:'Дима',thanks:'В жару сидим у фонтана — красота!',complain:'Жарко, а спрятаться негде.',name:'Дима, 9 лет',g:'m',text:'Летом так жарко! Хочется посидеть в тени и побрызгаться водой.',target:'park',hair:'#d6a243',skin:'#f6cfae',
-   hit:'В жару весь город отдыхает в тени деревьев',miss:'В жару горожанам негде спрятаться от солнца'},
-  {who:'Продавщица Оля',thanks:'Очередей нет, покупатели довольны!',complain:'Очередь до самой улицы, кошмар.',name:'Продавщица Оля, 30 лет',g:'f',text:'В мою лавку столько покупателей, что очередь стоит до самой улицы!',target:'shop',hair:'#a2462e',skin:'#f3c6a5',long:true,
-   hit:'Очередей больше нет: в городе новые магазины',miss:'Очередь в лавку Оли видно из космоса'}
-];
-const TOP_NEWS={shop:'В городе открылся торговый центр с вывеской до неба',homes:'В городе вырос новый жилой квартал',park:'Парк признан самым уютным в округе',school:'Школа выросла до четырёх этажей и получила стадион',lights:'Город так сияет ночью, что его видно из самолёта'};
-const CITY_NAMES=['Солнечноград','Радужинск','Зеленодол','Облачный','Ягодинск','Звёздный','Пряниково','Мармеладово','Светлогорск','Ветерок'];
-const LEARN={
-  line:'После игры ты умеешь по рассказу жителя выбрать нужное здание и объяснить бюджет города: налоги и доход магазинов минус уход за зданиями.',
-  aim:'по рассказу жителя выбрать нужное здание и объяснить бюджет: налоги и магазины минус уход',
-  budget:'Бюджет дня — налоги и магазины минус уход за зданиями. Разница остаётся на завтра.'
-};
-/* свой луп в двух коленах: светлая улица, потом тихий минор. Не чужие темы. */
-const TUNES={bpm:80,loop:64,
+/* Тексты, цены и жители — в data/content.json. Ключи зданий не переименовывать. */
+const BUILD_IDS=['homes','school','shop','lights','park'];
+let CFG,B,IDS,RESIDENTS,TOP_NEWS,CITY_NAMES,LEARN,COPY,UI;
+/* три своих темы по кругу. Не чужие мелодии. */
+const PIECES=[{bpm:80,loop:64,
   bass:[
     {at:0,f:'D2',len:8},{at:8,f:'A2',len:8},{at:16,f:'G2',len:8},{at:24,f:'A2',len:8},
     {at:32,f:'B2',len:16},{at:48,f:'G2',len:8},{at:56,f:'A2',len:8}
@@ -71,12 +35,75 @@ const TUNES={bpm:80,loop:64,
     {at:40,notes:['F#2','A2','C#3']},{at:44,notes:['F#2','B2','C#3']},
     {at:48,notes:['G2','B2','D3']},{at:52,notes:['G2','B2','D3']},
     {at:56,notes:['A2','C#3','E3']},{at:60,notes:['A2','C#3','E3']}
-  ]};
+  ]},
+{bpm:70,loop:64,
+  bass:[
+    {at:0,f:'C2',len:8},{at:8,f:'A2',len:8},{at:16,f:'F2',len:8},{at:24,f:'G2',len:8},
+    {at:32,f:'E2',len:8},{at:40,f:'A2',len:8},{at:48,f:'F2',len:8},{at:56,f:'G2',len:8}
+  ],
+  strings:[
+    {at:0,len:8,notes:['C3','E3','G3'],v:.02},{at:8,len:8,notes:['A2','C3','E3'],v:.018},
+    {at:16,len:8,notes:['F2','A2','C3'],v:.02},{at:24,len:8,notes:['G2','B2','D3'],v:.018},
+    {at:32,len:8,notes:['E3','G3','B3'],v:.014},{at:40,len:8,notes:['A2','C3','E3'],v:.014},
+    {at:48,len:8,notes:['F2','A2','C3'],v:.016},{at:56,len:8,notes:['G2','B2','D3'],v:.016}
+  ],
+  walk:[
+    {at:0,len:8,notes:['C3','G3','E3','G3']},{at:8,len:8,notes:['A2','E3','C3','E3']},
+    {at:16,len:8,notes:['F2','C3','A2','C3']},{at:24,len:8,notes:['G2','D3','B2','D3']}
+  ],
+  street:[
+    {at:0,f:'E4',len:2},{at:2,f:'D4',len:2},{at:4,f:'C4',len:4},
+    {at:8,f:'G3',len:2},{at:10,f:'A3',len:2},{at:12,f:'C4',len:4},
+    {at:16,f:'D4',len:2},{at:18,f:'C4',len:2},{at:20,f:'A3',len:2},{at:22,f:'G3',len:2},
+    {at:24,f:'A3',len:2},{at:26,f:'B3',len:2},{at:28,f:'C4',len:4}
+  ],
+  corner:[
+    {at:32,f:'B3',len:4},{at:36,f:'G3',len:4},
+    {at:40,f:'A3',len:2},{at:42,f:'C4',len:2},{at:44,f:'B3',len:4},
+    {at:48,f:'A3',len:4},{at:52,f:'G3',len:4},
+    {at:56,f:'A3',len:2},{at:58,f:'B3',len:2},{at:60,f:'C4',len:4}
+  ],
+  piano:[
+    {at:32,notes:['E2','G2','B2']},{at:36,notes:['E2','G2','B2']},
+    {at:40,notes:['A2','C3','E3']},{at:44,notes:['A2','C3','E3']},
+    {at:48,notes:['F2','A2','C3']},{at:52,notes:['F2','A2','C3']},
+    {at:56,notes:['G2','B2','D3']},{at:60,notes:['G2','B2','D3']}
+  ]},
+{bpm:66,loop:64,
+  bass:[
+    {at:0,f:'F2',len:8},{at:8,f:'C2',len:8},{at:16,f:'D2',len:8},{at:24,f:'A#2',len:8},
+    {at:32,f:'F2',len:16},{at:48,f:'C2',len:8},{at:56,f:'F2',len:8}
+  ],
+  strings:[
+    {at:0,len:8,notes:['F3','A3','C4'],v:.018},{at:8,len:8,notes:['C3','E3','G3'],v:.016},
+    {at:16,len:8,notes:['D3','F3','A3'],v:.016},{at:24,len:8,notes:['A#2','D3','F3'],v:.016},
+    {at:32,len:16,notes:['F3','A3','C4'],v:.013},{at:48,len:8,notes:['C3','E3','G3'],v:.014},
+    {at:56,len:8,notes:['F3','A3','C4'],v:.016}
+  ],
+  walk:[],
+  street:[
+    {at:0,f:'A3',len:4},{at:4,f:'C4',len:4},
+    {at:8,f:'D4',len:2},{at:10,f:'C4',len:2},{at:12,f:'A3',len:4},
+    {at:16,f:'G3',len:4},{at:20,f:'A3',len:4},
+    {at:24,f:'C4',len:2},{at:26,f:'D4',len:2},{at:28,f:'C4',len:4}
+  ],
+  corner:[
+    {at:32,f:'A3',len:4},{at:36,f:'F3',len:4},
+    {at:40,f:'G3',len:2},{at:42,f:'A3',len:2},{at:44,f:'C4',len:4},
+    {at:48,f:'A#3',len:4},{at:52,f:'A3',len:4},
+    {at:56,f:'G3',len:2},{at:58,f:'A3',len:2},{at:60,f:'F3',len:4}
+  ],
+  piano:[
+    {at:32,notes:['F2','A2','C3']},{at:40,notes:['F2','A2','C3']},
+    {at:48,notes:['C2','E2','G2']},{at:56,notes:['F2','A2','C3']}
+  ]}];
 
 /* ================= УТИЛИТЫ ================= */
 const $=id=>document.getElementById(id);
 function pl(n,f){n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return f[2];if(n1>1&&n1<5)return f[1];if(n1===1)return f[0];return f[2]}
-const mon=n=>`${n} ${pl(n,['монетка','монетки','монеток'])}`;
+const mon=n=>`${n} ${pl(n,UI.coinForms)}`;
+function fill(s,vars){return String(s==null?'':s).replace(/\{(\w+)\}/g,(m,k)=>vars&&vars[k]!=null?vars[k]:m)}
+function gword(key,g){const a=UI[key];return g==='f'?a[0]:g==='m'?a[1]:a[2]}
 const COIN='<i class="coin"></i>';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const verb=(g,f,m,p)=>g==='f'?f:g==='m'?m:p;
@@ -84,7 +111,7 @@ function shade(hex,f){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255]
 
 /* ================= ЗВУК ================= */
 let sfxOn=true,musicOn=true,actx=null,sessionBest=0;
-const music={timer:null,next:0,step:0,out:null,nodes:[]};
+const music={timer:null,next:0,step:0,ix:0,out:null,nodes:[]};
 function hz(n){const pc={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};const m=/^([A-G]#?)(\d)$/.exec(n);return 440*Math.pow(2,(((+m[2]+1)*12+pc[m[1]])-69)/12)}
 function ensureCtx(){actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}
 function beep(f,d,type){if(!sfxOn)return;try{const ctx=ensureCtx(),o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+d)}catch(e){}}
@@ -111,7 +138,8 @@ function playClarinet(name,time,dur,vol){
   g.gain.setValueAtTime(.0001,time);g.gain.exponentialRampToValueAtTime(vol||.04,time+a);g.gain.exponentialRampToValueAtTime(.0001,time+dur);
   o.connect(g);g.connect(music.out);o.start(time);lfo.start(time);o.stop(time+dur+.05);lfo.stop(time+dur+.05);music.nodes.push(o,lfo);
   if(f*3<1400)voice(f*3,time,dur*.85,.006,a,0,'sine')}
-function pumpMusic(){if(!actx||!music.timer)return;try{const beat=60/TUNES.bpm,now=actx.currentTime;if(music.next<now)music.next=now+.02;const horizon=now+.35;while(music.next<horizon){const i=music.step%TUNES.loop,t=music.next;TUNES.bass.forEach(n=>{if(n.at===i)playBass(n.f,t,beat*n.len)});TUNES.strings.forEach(n=>{if(n.at===i)playStrings(n.notes,t,beat*n.len,n.v)});TUNES.street.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.04)});TUNES.corner.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.03)});TUNES.piano.forEach(n=>{if(n.at===i)playPiano(n.notes,t)});const step=TUNES.walk.find(a=>i>=a.at&&i<a.at+a.len);if(step)playPluck(step.notes[(i-step.at)%step.notes.length],t);music.next+=beat;music.step++}}catch(e){}}
+function tuneNow(){let tune=PIECES[music.ix];if(music.step>=tune.loop){music.ix=(music.ix+1)%PIECES.length;music.step=0;tune=PIECES[music.ix]}return tune}
+function pumpMusic(){if(!actx||!music.timer)return;try{const now=actx.currentTime;if(music.next<now)music.next=now+.02;const horizon=now+.35;while(music.next<horizon){const tune=tuneNow(),beat=60/tune.bpm,i=music.step,t=music.next;tune.bass.forEach(n=>{if(n.at===i)playBass(n.f,t,beat*n.len)});tune.strings.forEach(n=>{if(n.at===i)playStrings(n.notes,t,beat*n.len,n.v)});tune.street.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.04)});tune.corner.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.028)});tune.piano.forEach(n=>{if(n.at===i)playPiano(n.notes,t)});const step=tune.walk.find(a=>i>=a.at&&i<a.at+a.len);if(step)playPluck(step.notes[(i-step.at)%step.notes.length],t);music.next+=beat;music.step++}}catch(e){}}
 function startMusic(){if(!musicOn||music.timer)return;const ctx=ensureCtx(),out=musicOut(),t=ctx.currentTime;out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(Math.max(out.gain.value,.0001),t);out.gain.linearRampToValueAtTime(.8,t+1.2);music.next=t+.08;music.step=0;music.timer=setInterval(pumpMusic,90);pumpMusic()}
 function stopMusic(){if(music.timer){clearInterval(music.timer);music.timer=null}if(music.out&&actx){const t=actx.currentTime;music.out.gain.cancelScheduledValues(t);music.out.gain.setValueAtTime(Math.max(music.out.gain.value,.0001),t);music.out.gain.linearRampToValueAtTime(.0001,t+.35)}const old=music.nodes.splice(0);setTimeout(()=>old.forEach(o=>{try{o.stop()}catch(e){}}),380);music.step=0}
 function primeAudio(manual){try{ensureCtx();if(!manual&&musicOn)startMusic()}catch(e){}}
@@ -360,7 +388,7 @@ let S=null;
 const today=()=>RESIDENTS[S.day-1];
 function newGame(city){
   S={day:1,coins:CFG.startCoins,happy:CFG.startHappy,people:CFG.startPeople,lvl:{shop:0,homes:0,park:0,school:0,lights:0},
-     city:city||'Солнечноград',focus:null,log:[],news:[],spendBy:{shop:0,homes:0,park:0,school:0,lights:0},dec:CFG.decisions,reqDone:false,hearts:0,fest:0,anim:null,hist:[],
+     city:city||CITY_NAMES[0],focus:null,log:[],news:[],spendBy:{shop:0,homes:0,park:0,school:0,lights:0},dec:CFG.decisions,reqDone:false,hearts:0,fest:0,anim:null,hist:[],
      st:{shopSpent:0,shopEarned:0,festSpent:0,festEarned:0,storm:null,missed:[],built:0,spent:0}};
   $('start').classList.add('hidden');$('result').classList.add('hidden');
   morning();
@@ -374,33 +402,35 @@ function render(){
   if(!S)return;
   renderMap();
   if(S.anim)setTimeout(()=>{if(S){S.anim=null}},900);
-  $('day').textContent=S.day;$('coins').textContent=S.coins;$('happy').textContent=S.happy;$('smile').innerHTML=smile(S.happy);
+  $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('coins').textContent=S.coins;$('happy').textContent=S.happy;$('smile').innerHTML=smile(S.happy);
   const r=today();
   $('req').className='req'+(S.reqDone?' done':'');
   $('req').innerHTML=S.reqDone
-    ?`${face(r,50)}<div><b>${r.name}</b><p>Спасибо! Просьба выполнена ${HEART} +1</p></div>`
+    ?`${face(r,50)}<div><b>${r.name}</b><p>${fill(UI.thanksDone,{heart:HEART})}</p></div>`
     :`${face(r,50)}<div><b>${r.name}</b><p>${r.text}</p></div><span class="chev">›</span>`;
-  $('decs').innerHTML=`Улучшения сегодня ${Array.from({length:CFG.decisions},(_,k)=>`<i class="${k<S.dec?'':'off'}"></i>`).join('')} ${S.dec} из ${CFG.decisions}`;
-  $('endBtn').textContent=S.day===CFG.days?'Закончить последний день':'Закончить день';
+  const dots=Array.from({length:CFG.decisions},(_,k)=>`<i class="${k<S.dec?'':'off'}"></i>`).join('');
+  $('decs').innerHTML=fill(UI.upgrades,{dots,have:S.dec,max:CFG.decisions});
+  $('endBtn').textContent=S.day===CFG.days?UI.endLast:UI.endDay;
 }
 function effList(id){
   const e=B[id].eff;let h='';
-  if(e.income)h+=`<span class="eff">+${e.income}${COIN} в день</span>`;
-  if(e.people)h+=`<span class="eff">${PEOPLE} +${e.people} жителей</span>`;
-  if(e.happy)h+=`<span class="eff">${smile(80)} +${e.happy} счастья</span>`;
-  h+=`<span class="eff cost">Уход за зданием −1${COIN} в день</span>`;
+  if(e.income)h+=`<span class="eff">+${e.income}${COIN} ${UI.perDay}</span>`;
+  if(e.people)h+=`<span class="eff">${PEOPLE} +${e.people} ${UI.peoplePlus}</span>`;
+  if(e.happy)h+=`<span class="eff">${smile(80)} +${e.happy} ${UI.happyPlus}</span>`;
+  h+=`<span class="eff cost">${fill(UI.upkeep,{coin:COIN})}</span>`;
   return h;
 }
 function openB(id){
   const b=B[id],lv=S.lvl[id],max=lv>=b.cost.length,cost=max?0:b.cost[lv],r=today();
   const can=!max&&S.dec>0&&S.coins>=cost;
-  const why=max?'Уже максимальный уровень':S.dec<=0?'Улучшения на сегодня закончились':S.coins<cost?'Не хватает монеток':'';
-  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="Закрыть">✕</button>
-  <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${max?`Уровень ${lv+1} — максимум`:`Уровень ${lv+1} → ${lv+2}`}</div></div></div>
+  const why=max?UI.alreadyMax:S.dec<=0?UI.noDecisions:S.coins<cost?UI.noCoins:'';
+  const lvl=max?fill(UI.levelMax,{level:lv+1}):fill(UI.levelStep,{from:lv+1,to:lv+2});
+  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button>
+  <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${lvl}</div></div></div>
   <p>${b.desc}</p>
   ${max?'':`<div class="effs">${effList(id)}</div>`}
-  ${max?'':`<div class="nobox"><b>А если не улучшать?</b>${b.no}</div>`}
-  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?'Максимальный уровень':`Улучшить за ${cost}${COIN}`}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">Не сейчас</button><button class="btn ghost" data-act="askLeave">В меню</button></div>`;
+  ${max?'':`<div class="nobox"><b>${UI.ifSkip}</b>${b.no}</div>`}
+  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`;
   $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();
 }
 function closeSheet(){$('sheetShade').classList.remove('show');if(S&&S.focus){S.focus=null;renderMap()}}
@@ -409,8 +439,8 @@ function support(id){
   S.coins-=cost;S.lvl[id]++;S.dec--;S.st.built++;S.st.spent+=cost;
   if(id==='shop')S.st.shopSpent+=cost;S.spendBy[id]+=cost;if(S.lvl[id]===3)S.news.push({w:3,t:TOP_NEWS[id]});
   if(b.eff.happy)S.happy+=b.eff.happy;if(b.eff.people)S.people+=b.eff.people;
-  let msg=`${b.name}: уровень ${lv+2}!`;
-  if(today().target===id&&!S.reqDone){S.reqDone=true;S.hearts++;S.news.push({w:2,t:today().hit});S.happy+=CFG.reqHappy;msg=`${today().who} ${verb(today().g,'рада','рад','рады')}! +1 сердечко`;sfx.win()}else sfx.coin();
+  let msg=fill(UI.built,{name:b.name,level:lv+2});
+  if(today().target===id&&!S.reqDone){S.reqDone=true;S.hearts++;S.news.push({w:2,t:today().hit});S.happy+=CFG.reqHappy;msg=fill(UI.gladHeart,{who:today().who,glad:gword('glad',today().g)});sfx.win()}else sfx.coin();
   S.happy=clamp(S.happy,0,100);S.anim=id;closeSheet();render();toast(msg);vibrate();
 }
 
@@ -418,26 +448,27 @@ function support(id){
 function morning(){
   S.dec=CFG.decisions;S.reqDone=false;render();
   const r=today();
-  const intro=S.day===1?`<ul class="howto"><li><b>Цель:</b> ${LEARN.aim}.</li><li>Жми на значки над домами и <b>улучшай здания</b> за монетки.</li><li>Каждый день кто-то из жителей рассказывает о проблеме. <b>Догадайся, что поможет</b>, — получишь сердечко.</li><li>Вечером город получает монетки. <b>Оставляй немного на завтра.</b></li></ul>`:'';
-  let ev='',btns=`<button class="btn primary" data-act="startday">В город</button>`;
-  if(S.day===3){ev=`<div class="event"><b>В город приехал фестиваль еды!</b><p>Помоги его устроить — и ${CFG.festDays} дня город будет получать больше монеток.</p></div>`;
-    btns=`<button class="opt go" data-act="fest" data-v="yes" ${S.coins>=CFG.festCost?'':'disabled'}><b>Помочь фестивалю</b><small>Сейчас −${CFG.festCost}, потом +${CFG.festBonus} каждый день, ${CFG.festDays} дня</small></button><button class="opt" data-act="fest" data-v="no"><b>Не участвовать</b><small>Ничего не изменится</small></button>`}
-  if(S.day===5){ev=`<div class="event"><b>Ночью дул сильный ветер</b><p>Сломались качели и скамейки. Починить стоит ${mon(CFG.stormCost)}.</p></div>`;
-    btns=`<button class="opt go" data-act="storm" data-v="yes" ${S.coins>=CFG.stormCost?'':'disabled'}><b>Починить</b><small>−${mon(CFG.stormCost)}${S.coins<CFG.stormCost?' · не хватает монеток':''}</small></button><button class="opt" data-act="storm" data-v="no"><b>Не чинить</b><small>Жители расстроятся: счастье ${CFG.stormHappy}</small></button>`}
-  show(`<div class="kicker">ГОРОД «${esc(S.city).toUpperCase()}» · ДЕНЬ ${S.day} ИЗ ${CFG.days}</div><h2>${S.day===1?'Ты — мэр города!':S.day===CFG.days?'Последний день':'Доброе утро, мэр!'}</h2>${intro}
-  <div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">Что поможет? Найди это здание в городе.</p>${ev}<div class="actions">${btns}</div>`);
+  const intro=S.day===1?`<ul class="howto">${UI.tips.map(s=>`<li>${fill(s,{aim:LEARN.aim})}</li>`).join('')}</ul>`:'';
+  let ev='',btns=`<button class="btn primary" data-act="startday">${UI.toCity}</button>`;
+  if(S.day===CFG.festDay){ev=`<div class="event"><b>${UI.festTitle}</b><p>${fill(UI.festText,{festDays:CFG.festDays})}</p></div>`;
+    btns=`<button class="opt go" data-act="fest" data-v="yes" ${S.coins>=CFG.festCost?'':'disabled'}><b>${UI.festYes}</b><small>${fill(UI.festYesNote,{cost:CFG.festCost,bonus:CFG.festBonus,festDays:CFG.festDays})}</small></button><button class="opt" data-act="fest" data-v="no"><b>${UI.festNo}</b><small>${UI.festNoNote}</small></button>`}
+  if(S.day===CFG.stormDay){ev=`<div class="event"><b>${UI.stormTitle}</b><p>${fill(UI.stormText,{cost:mon(CFG.stormCost)})}</p></div>`;
+    btns=`<button class="opt go" data-act="storm" data-v="yes" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
+  const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
+  show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}
+  <div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
 }
 function fest(yes){
-  if(yes){S.coins-=CFG.festCost;S.fest=CFG.festDays;S.st.festSpent=CFG.festCost;S.news.push({w:2,t:'Фестиваль еды собрал весь город'});sfx.coin();
-    show(`<h2>Фестиваль начинается!</h2><p>Ты потратил ${mon(CFG.festCost)}. Следующие ${CFG.festDays} вечера город получит по +${CFG.festBonus}. Посмотрим, вернутся ли деньги!</p><div class="actions"><button class="btn primary" data-act="startday">В город</button></div>`)}
-  else{S.st.festSpent=0;show(`<h2>Фестиваль проедет мимо</h2><p>Монетки остались при тебе. Иногда потратить сейчас — значит получить больше потом.</p><div class="actions"><button class="btn primary" data-act="startday">В город</button></div>`)}
+  if(yes){S.coins-=CFG.festCost;S.fest=CFG.festDays;S.st.festSpent=CFG.festCost;S.news.push({w:2,t:UI.festNews});sfx.coin();
+    show(`<h2>${UI.festStartTitle}</h2><p>${fill(UI.festStartText,{spent:mon(CFG.festCost),festDays:CFG.festDays,bonus:CFG.festBonus})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
+  else{S.st.festSpent=0;show(`<h2>${UI.festSkipTitle}</h2><p>${UI.festSkipText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
   render();
 }
 function storm(yes){
-  if(yes){S.coins-=CFG.stormCost;S.st.storm='paid';S.news.push({w:1,t:'Качели после бури починили за одну ночь'});sfx.coin();
-    show(`<h2>Всё починили!</h2><p>Хорошо, что были монетки в запасе. Запас нужен как раз на такие случаи.</p><div class="actions"><button class="btn primary" data-act="startday">В город</button></div>`)}
-  else{S.happy=clamp(S.happy+CFG.stormHappy,0,100);S.st.storm='skip';S.news.push({w:1.5,t:'Сломанные качели всё ещё ждут ремонта'});sfx.bad();
-    show(`<h2>Жители грустят</h2><p>Качели так и стоят сломанные: счастье ${CFG.stormHappy}. Совет: держи немного монеток в запасе.</p><div class="actions"><button class="btn primary" data-act="startday">В город</button></div>`)}
+  if(yes){S.coins-=CFG.stormCost;S.st.storm='paid';S.news.push({w:1,t:UI.stormFixedNews});sfx.coin();
+    show(`<h2>${UI.stormFixedTitle}</h2><p>${UI.stormFixedText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
+  else{S.happy=clamp(S.happy+CFG.stormHappy,0,100);S.st.storm='skip';S.news.push({w:1.5,t:UI.stormSkipNews});sfx.bad();
+    show(`<h2>${UI.stormSkipTitle}</h2><p>${fill(UI.stormSkipText,{happy:CFG.stormHappy})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
   render();
 }
 function evening(){
@@ -450,18 +481,18 @@ function evening(){
   const last=S.day===CFG.days,b=B[r.target];
   if(S.reqDone) markLearned();
   const resident=S.reqDone
-    ?`<b>${r.who} ${verb(r.g,'довольна','доволен','довольны')}</b><p>${HEART} +1 сердечко. Ты выбрал «${b.name}»: ${b.desc}</p>`
-    :`<b>${r.who} ${verb(r.g,'расстроилась','расстроился','расстроились')}</b><p>${r.miss}. Помогло бы: <b>${b.name}</b>. ${b.desc} Счастье ${CFG.missHappy}. ${last?'Теперь понятно, какое здание ждали.':'В следующий день послушай просьбу и улучши это здание.'}</p>`;
-  show(`<div class="kicker">ВЕЧЕР · ДЕНЬ ${S.day}</div><h2>Итог дня</h2>
-  <div class="ledger"><div><span>Жители заплатили налоги</span><b class="plus">+${inc.tax}</b></div>
-  ${inc.shop?`<div><span>Магазины</span><b class="plus">+${inc.shop}</b></div>`:''}
-  ${inc.fest?`<div><span>Фестиваль</span><b class="plus">+${inc.fest}</b></div>`:''}
-  <div><span>Уход за зданиями</span><b class="minus">−${inc.upkeep}</b></div>
-  <div class="total"><span>Прибыль</span><b class="${profit>=0?'plus':'minus'}">${profit>=0?'+':''}${profit}${COIN}</b></div></div>
+    ?`<b>${r.who} ${gword('pleased',r.g)}</b><p>${fill(UI.hitLine,{heart:HEART,name:b.name,desc:b.desc})}</p>`
+    :`<b>${r.who} ${gword('upset',r.g)}</b><p>${fill(UI.missLine,{miss:r.miss,name:b.name,desc:b.desc,happy:CFG.missHappy,hint:last?UI.missLast:UI.missNext})}</p>`;
+  show(`<div class="kicker">${fill(UI.eveningKicker,{day:S.day})}</div><h2>${UI.eveningTitle}</h2>
+  <div class="ledger"><div><span>${UI.taxLine}</span><b class="plus">+${inc.tax}</b></div>
+  ${inc.shop?`<div><span>${UI.shopLine}</span><b class="plus">+${inc.shop}</b></div>`:''}
+  ${inc.fest?`<div><span>${UI.festLine}</span><b class="plus">+${inc.fest}</b></div>`:''}
+  <div><span>${UI.upkeepLine}</span><b class="minus">−${inc.upkeep}</b></div>
+  <div class="total"><span>${UI.profit}</span><b class="${profit>=0?'plus':'minus'}">${profit>=0?'+':''}${profit}${COIN}</b></div></div>
   <p class="learnline">${LEARN.budget}</p>
   <div class="quote">${face(r,46)}<div>${resident}</div></div>
-  <p>В бюджете: <b>${mon(S.coins)}</b></p>
-  <div class="actions"><button class="btn primary" data-act="${last?'final':'next'}">${last?'Подвести итоги':'Наступает утро'}</button></div>`);
+  <p>${fill(UI.budgetNow,{coins:mon(S.coins)})}</p>
+  <div class="actions"><button class="btn primary" data-act="${last?'final':'next'}">${last?UI.toFinal:UI.toMorning}</button></div>`);
 }
 function nextDay(){S.day++;hide();morning()}
 
@@ -469,31 +500,32 @@ function nextDay(){S.day++;hide();morning()}
 function esc(t){return String(t).replace(/[<>&"']/g,'')}
 function archetype(){
   const sp=S.spendBy,green=sp.park+sp.lights,biz=sp.shop,build=sp.homes+sp.school,all=green+biz+build;
-  if(!all)return {t:'Мэр-хранитель',d:'Ты почти ничего не тратил. Деньги целы, но город не вырос.'};
-  if(S.hearts>=6)return {t:'Народный мэр',d:'Ты слышишь каждого жителя — город тебя обожает.'};
-  if(S.coins>=110)return {t:'Бережливый мэр',d:'Ты умеешь копить и тратишь с умом.'};
+  const role=pair=> ({t:pair[0],d:pair[1]});
+  if(!all)return role(UI.roles.empty);
+  if(S.hearts>=CFG.mayorHearts)return role(UI.roles.hearts);
+  if(S.coins>=CFG.mayorCoins)return role(UI.roles.coins);
   const m=Math.max(green,biz,build);
-  if(m===green)return {t:'Мэр-садовник',d:'Ты сделал город зелёным, светлым и уютным.'};
-  if(m===biz)return {t:'Мэр-предприниматель',d:'Ты знаешь: магазины пополняют бюджет каждый день.'};
-  return {t:'Мэр-строитель',d:'Город растёт, в нём появляются новые семьи.'};
+  if(m===green)return role(UI.roles.green);
+  if(m===biz)return role(UI.roles.biz);
+  return role(UI.roles.build);
 }
-function headlines(){const n=S.news.slice().sort((a,b)=>b.w-a.w).map(x=>x.t);if(!n.length)n.push('В городе спокойно: мэр копит силы');return n.slice(0,3)}
+function headlines(){const n=S.news.slice().sort((a,b)=>b.w-a.w).map(x=>x.t);if(!n.length)n.push(UI.quietNews);return n.slice(0,3)}
 function moodOf(hit){return hit?(S.happy>=40?'happy':'ok'):(S.happy>=70?'ok':'sad')}
 function paperPeople(){const hits=S.log.filter(x=>x.hit),miss=S.log.filter(x=>!x.hit);let p=[...hits.slice(-2),...miss.slice(-1)];if(p.length<3)p=[...p,...S.log.filter(x=>!p.includes(x))].slice(0,3);return p.slice(0,3)}
-function forecast(){return S.happy>=70?['Солнечно','Жители улыбаются весь день']:S.happy>=40?['Переменная облачность','Кому-то весело, кому-то не очень']:['Пасмурно','Жители ворчат, мэру есть над чем подумать']}
+function forecast(){return S.happy>=CFG.sunAt?UI.forecastSun:S.happy>=CFG.cloudAt?UI.forecastCloud:UI.forecastRain}
 function paperHTML(n){
   const people=paperPeople(),fc=forecast(),pins=IDS.map(id=>`<span class="tpin" style="left:${SPOTS[id].pin[0]}%;top:${SPOTS[id].pin[1]}%;--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}">${S.lvl[id]+1}</span>`).join('');
   return `<div class="paper">
-  <div class="ptop"><span>Выпуск №${CFG.days}</span><span>Цена: 1 монетка</span></div>
-  <div class="mast">Вестник «${esc(S.city)}»</div>
-  <div class="date">Главная газета города · 7 дней работы нового мэра</div>
+  <div class="ptop"><span>${fill(UI.issue,{days:CFG.days})}</span><span>${UI.price}</span></div>
+  <div class="mast">${fill(UI.mast,{city:esc(S.city)})}</div>
+  <div class="date">${fill(UI.paperDate,{days:CFG.days})}</div>
   <h3>${n[0]}</h3>
-  ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="">${pins}</div></div><figcaption>${esc(S.city)} сегодня. Фото редакции</figcaption></figure>`:''}
-  <div class="pcols"><div><div class="psec">Новости</div>${n.slice(1).map(t=>`<div class="more">${t}</div>`).join('')||'<div class="more">В городе тихо и спокойно</div>'}</div>
-  <div><div class="psec">Цифры недели</div><div class="pnum"><b>${S.people}</b>жителей</div><div class="pnum"><b>${S.happy}</b>счастье из 100</div><div class="pnum"><b>${S.coins}</b>монеток в казне</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>просьб выполнено</div></div></div>
-  <div class="psec">Жители говорят</div>
+  ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="">${pins}</div></div><figcaption>${fill(UI.photoCap,{city:esc(S.city)})}</figcaption></figure>`:''}
+  <div class="pcols"><div><div class="psec">${UI.secNews}</div>${n.slice(1).map(t=>`<div class="more">${t}</div>`).join('')||`<div class="more">${UI.paperQuiet}</div>`}</div>
+  <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
+  <div class="psec">${UI.secVoices}</div>
   <div class="ppl">${people.map(x=>`<div class="pp">${face(x.r,52,moodOf(x.hit))}<div><b>${x.r.who}</b><i>«${x.hit?x.r.thanks:x.r.complain}»</i></div></div>`).join('')}</div>
-  <div class="pfoot"><div><div class="psec">Мэр недели</div><b>${S.final.title}</b><br><small>${S.final.arch.d}</small></div><div class="wthr">${smile(S.happy)}<div><div class="psec">Прогноз</div><b>${fc[0]}</b><br><small>${fc[1]}</small></div></div></div>
+  <div class="pfoot"><div><div class="psec">${UI.secMayor}</div><b>${S.final.title}</b><br><small>${S.final.arch.d}</small></div><div class="wthr">${smile(S.happy)}<div><div class="psec">${UI.secForecast}</div><b>${fc[0]}</b><br><small>${fc[1]}</small></div></div></div>
   </div>`}
 function wrap(x,text,maxW){const words=text.split(' '),lines=[];let cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(x.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t});if(cur)lines.push(cur);return lines}
 function finale(){
@@ -501,27 +533,27 @@ function finale(){
   const sc=score(),pts=total(sc),stars=CFG.stars.filter(x=>pts>=x).length,inc=income();
   const arch=archetype(),title=arch.t,news=headlines();
   const ins=[];
-  ins.push(`Ты выполнил <b>${S.hearts} из ${CFG.days}</b> просьб жителей — это ${HEART} +${S.hearts*CFG.heartPoints} очков.`);
-  if(S.st.shopSpent)ins.push(`Магазины стоили <b>${mon(S.st.shopSpent)}</b>, а принесли <b>${mon(S.st.shopEarned)}</b>.${S.st.shopEarned>=S.st.shopSpent?' Вложение окупилось!':' Чем раньше строишь, тем быстрее окупается.'}`);
-  else ins.push('Магазины приносят доход каждый день. Чем раньше их построить, тем больше заработаешь.');
-  if(S.st.festSpent)ins.push(`Фестиваль: вложил <b>${S.st.festSpent}</b>, получил <b>${S.st.festEarned}</b>. ${S.st.festEarned>S.st.festSpent?'Хорошее вложение!':''}`);
-  else ins.push(`Фестиваль мог принести ${CFG.festBonus*CFG.festDays} монеток за ${CFG.festCost}. Иногда вкладываться выгодно.`);
-  ins.push(S.st.storm==='paid'?'После ветра хватило денег на ремонт — запас пригодился.':'На ремонт после ветра не хватило запаса. Оставляй монетки на неожиданности.');
+  ins.push(fill(UI.insHearts,{hearts:S.hearts,days:CFG.days,heart:HEART,points:S.hearts*CFG.heartPoints}));
+  if(S.st.shopSpent)ins.push(fill(UI.insShop,{spent:mon(S.st.shopSpent),earned:mon(S.st.shopEarned),tail:S.st.shopEarned>=S.st.shopSpent?UI.insShopPay:UI.insShopWait}));
+  else ins.push(UI.insShopNone);
+  if(S.st.festSpent)ins.push(fill(UI.insFest,{spent:S.st.festSpent,earned:S.st.festEarned,tail:S.st.festEarned>S.st.festSpent?UI.insFestGood:''}));
+  else ins.push(fill(UI.insFestNone,{gain:CFG.festBonus*CFG.festDays,cost:CFG.festCost}));
+  ins.push(S.st.storm==='paid'?UI.insStormYes:UI.insStormNo);
   const prev=sessionBest,fresh=pts>prev;if(fresh)sessionBest=pts;
-  const record=prev>0&&fresh?`Новый лучший результат: ${pts}`:prev>0&&pts<prev?`Сейчас ${pts} · лучший результат ${sessionBest}`:`Лучший результат: ${sessionBest}`;
+  const record=prev>0&&fresh?fill(UI.recordNew,{pts}):prev>0&&pts<prev?fill(UI.recordLow,{pts,best:sessionBest}):fill(UI.record,{pts:sessionBest});
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
-  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?'Отлично!':'Неплохо!'}</h1><div style="font-size:17px;font-weight:700">${esc(S.city)} · ${pts} очков</div><div class="record">${record}</div><p class="learnline">${LEARN.line}</p></div>
+  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="learnline">${LEARN.line}</p></div>
   <div class="rpanel np">${paper}
-  <div class="actions"><button class="btn primary" data-act="card">Поделиться газетой</button></div></div>
-  <div class="rpanel"><div class="score">${pts} очков</div>
-    <div class="rrow"><span>${smile(S.happy)} Счастье</span><b>+${sc.happy}</b></div>
-    <div class="rrow"><span>${PEOPLE} Жители: ${S.people}</span><b>+${sc.people}</b></div>
-    <div class="rrow"><span>${HEART} Просьбы жителей: ${S.hearts} из ${CFG.days}</span><b>+${sc.hearts}</b></div>
-    <div class="rrow"><span><i class="coin"></i> Бюджет: ${S.coins}</span><b>+${sc.coins}</b></div>
-    <div class="rrow"><span>Доход города в день</span><b>${inc.tax+inc.shop-inc.upkeep}${COIN}</b></div>
+  <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
+  <div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
+    <div class="rrow"><span>${smile(S.happy)} ${UI.rowHappy}</span><b>+${sc.happy}</b></div>
+    <div class="rrow"><span>${PEOPLE} ${fill(UI.rowPeople,{people:S.people})}</span><b>+${sc.people}</b></div>
+    <div class="rrow"><span>${HEART} ${fill(UI.rowHearts,{hearts:S.hearts,days:CFG.days})}</span><b>+${sc.hearts}</b></div>
+    <div class="rrow"><span><i class="coin"></i> ${fill(UI.rowBudget,{coins:S.coins})}</span><b>+${sc.coins}</b></div>
+    <div class="rrow"><span>${UI.rowIncome}</span><b>${inc.tax+inc.shop-inc.upkeep}${COIN}</b></div>
   </div>
-  <div class="rpanel"><b>Что получилось</b><ul class="ins">${ins.map(x=>`<li>${x}</li>`).join('')}</ul>
-  <div class="actions"><button class="btn secondary" data-act="again">Построить город заново</button><button class="btn ghost" data-act="home">В меню</button></div></div>`;
+  <div class="rpanel"><b>${UI.gotTitle}</b><ul class="ins">${ins.map(x=>`<li>${x}</li>`).join('')}</ul>
+  <div class="actions"><button class="btn secondary" data-act="again">${UI.again}</button><button class="btn ghost" data-act="home">${UI.toMenu}</button></div></div>`;
   $('result').classList.remove('hidden');$('result').scrollTop=0;sfx.win();
   if(S.hearts>0)markLearned();
   post('FINISH_EVENT');
@@ -537,47 +569,47 @@ async function makeCard(){
     const g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#b67bff');g.addColorStop(1,'#4a2aa8');x.fillStyle=g;x.fillRect(0,0,W,H);
     roundRect(x,22,22,W-44,H-44,22,'#fbf7ec');
     const L=54,R=W-54,ser='Literata, Georgia, serif',sys='Nunito, system-ui, sans-serif';
-    x.fillStyle='#6b6252';x.font=`700 18px ${sys}`;x.textAlign='left';x.fillText('ВЫПУСК №'+CFG.days,L,66);x.textAlign='right';x.fillText('ЦЕНА: 1 МОНЕТКА',R,66);
+    x.fillStyle='#6b6252';x.font=`700 18px ${sys}`;x.textAlign='left';x.fillText(fill(UI.cardIssue,{days:CFG.days}),L,66);x.textAlign='right';x.fillText(UI.cardPrice,R,66);
     x.fillStyle='#2b2b2b';x.fillRect(L,78,R-L,2);
-    x.textAlign='center';x.fillStyle='#1d1a14';x.font=`900 50px ${ser}`;x.fillText('Вестник «'+esc(S.city)+'»',W/2,138);
+    x.textAlign='center';x.fillStyle='#1d1a14';x.font=`900 50px ${ser}`;x.fillText(fill(UI.cardMast,{city:esc(S.city)}),W/2,138);
     x.fillRect(L,156,R-L,3);x.fillRect(L,163,R-L,1.5);
     x.font=`bold 40px ${ser}`;const hl=wrap(x,f.news[0],R-L).slice(0,3);hl.forEach((l,k)=>x.fillText(l,W/2,214+k*46));
     let y=214+hl.length*46-10;
     const ph=420;x.fillStyle='#d9cfb8';x.fillRect(L,y,R-L,ph);
     if(withCity&&city){const iw=city.naturalWidth,ih=city.naturalHeight,sh=iw*ph/(R-L);x.drawImage(city,0,ih*.3,iw,sh,L,y,R-L,ph)}
     x.strokeStyle='#2b2b2b';x.lineWidth=2;x.strokeRect(L,y,R-L,ph);
-    y+=ph+30;x.fillStyle='#6b6252';x.font=`italic 20px ${ser}`;x.textAlign='left';x.fillText(esc(S.city)+' сегодня. Фото редакции',L,y);
+    y+=ph+30;x.fillStyle='#6b6252';x.font=`italic 20px ${ser}`;x.textAlign='left';x.fillText(fill(UI.cardPhoto,{city:esc(S.city)}),L,y);
     y+=22;x.fillStyle='#2b2b2b';x.fillRect(L,y,R-L,2);y+=34;
-    x.fillStyle='#7b4cf0';x.font=`900 18px ${sys}`;x.fillText('ЖИТЕЛИ ГОВОРЯТ',L,y);y+=16;
+    x.fillStyle='#7b4cf0';x.font=`900 18px ${sys}`;x.fillText(UI.cardVoices,L,y);y+=16;
     people.forEach((p,k)=>{const fi=faces[k];if(fi)x.drawImage(fi,L,y,92,92);
       x.fillStyle='#1d1a14';x.font=`800 22px ${sys}`;x.fillText(p.r.who,L+100,y+28);
       x.font=`italic 24px ${ser}`;wrap(x,'«'+(p.hit?p.r.thanks:p.r.complain)+'»',R-L-100).slice(0,2).forEach((l,j)=>x.fillText(l,L+100,y+58+j*28));
       y+=106});
     y=Math.max(y+4,H-150);x.fillStyle='#2b2b2b';x.fillRect(L,y,R-L,2);
-    x.textAlign='left';x.fillStyle='#7b4cf0';x.font=`900 18px ${sys}`;x.fillText('МЭР НЕДЕЛИ',L,y+34);
+    x.textAlign='left';x.fillStyle='#7b4cf0';x.font=`900 18px ${sys}`;x.fillText(UI.cardMayor,L,y+34);
     x.fillStyle='#1d1a14';x.font=`bold 28px ${ser}`;x.fillText(f.title,L,y+70);
     x.textAlign='right';x.fillStyle='#f2a91f';x.font=`bold 44px ${sys}`;x.fillText('★'.repeat(f.stars)+'☆'.repeat(3-f.stars),R,y+50);
-    x.fillStyle='#1d1a14';x.font=`900 26px ${sys}`;x.fillText(f.pts+' очков',R,y+86);
-    x.textAlign='center';x.fillStyle='#6b6252';x.font=`600 20px ${sys}`;x.fillText('Построишь город лучше?',W/2,H-44);
+    x.fillStyle='#1d1a14';x.font=`900 26px ${sys}`;x.fillText(fill(UI.cardPts,{pts:f.pts}),R,y+86);
+    x.textAlign='center';x.fillStyle='#6b6252';x.font=`600 20px ${sys}`;x.fillText(UI.cardCta,W/2,H-44);
     try{return {cv,url:cv.toDataURL('image/jpeg',.85)}}catch(e){return null}
   };
   const res=draw(true)||draw(false)||{cv:null,url:''};
   S.cardCanvas=res.cv;S.cardUrl=res.url;
-  show(`<h2>Газета для друзей</h2>${res.url?`<img class="cardimg" src="${res.url}" alt="Газета твоего города">`:''}<div class="actions"><button class="btn primary" data-act="share">Отправить друзьям</button><button class="btn secondary" data-act="close">Назад</button></div>`);
+  show(`<h2>${UI.cardTitle}</h2>${res.url?`<img class="cardimg" src="${res.url}" alt="${UI.cardAlt}">`:''}<div class="actions"><button class="btn primary" data-act="share">${UI.cardSend}</button><button class="btn secondary" data-act="close">${UI.back}</button></div>`);
 }
 function share(){
-  const text=`Мой город «${esc(S.city)}»: ${S.final.pts} очков. Я — ${S.final.title}! Построишь лучше?`;
+  const text=fill(UI.shareText,{city:esc(S.city),pts:S.final.pts,title:S.final.title});
   post('SHARING_EVENT',{text,image:S.cardUrl||undefined});vibrate();
 }
 
 /* ================= ОБЩЕЕ ================= */
-function show(html){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');$('dialog').innerHTML=html+(playing?'<div class="actions"><button class="btn ghost" data-act="askLeave">В меню</button></div>':'');$('shade').classList.add('show');$('dialog').scrollTop=0}
+function show(html){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');$('dialog').innerHTML=html+(playing?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'');$('shade').classList.add('show');$('dialog').scrollTop=0}
 function hide(){$('shade').classList.remove('show')}
 let tt;function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1900)}
 function randomName(){return CITY_NAMES[Math.floor(Math.random()*CITY_NAMES.length)]}
-function nameDialog(){show(`<div class="kicker">НОВЫЙ ГОРОД</div><h2>Как назовём твой город?</h2><input id="cityName" class="namein" maxlength="16" value="${randomName()}" aria-label="Название города"><p class="lvl">Название попадёт в газету и на карточку для друзей</p><div class="actions"><button class="btn big2" style="width:100%;font-size:19px;padding:17px" data-act="go">Основать город <span class="arr">→</span></button><button class="btn secondary" data-act="rename">Другое название</button></div>`)}
-function help(){show(`<h2>Как играть</h2><p class="learnline"><b>${LEARN.line}</b></p><ul class="howto"><li>Ты мэр города на <b>7 дней</b>.</li><li>Жми на значок над зданием и <b>улучшай</b> его. В день — 2 улучшения.</li><li>Улучшение стоит монетки, а потом <b>1 монетку в день</b> на уход.</li><li>Помоги жителю дня — получишь ${HEART} <b>сердечко</b>.</li><li>Вечером считаем: <b>налоги и магазины − уход = прибыль</b>.</li></ul>
-<div class="actions"><button class="btn primary" data-act="close">Понятно</button></div>`)}
+function nameDialog(){show(`<div class="kicker">${UI.nameKicker}</div><h2>${UI.nameTitle}</h2><input id="cityName" class="namein" maxlength="16" value="${randomName()}" aria-label="${UI.nameLabel}"><p class="lvl">${UI.nameHint}</p><div class="actions"><button class="btn big2" style="width:100%;font-size:19px;padding:17px" data-act="go">${UI.nameGo} <span class="arr">→</span></button><button class="btn secondary" data-act="rename">${UI.nameOther}</button></div>`)}
+function help(){show(`<h2>${UI.helpTitle}</h2><p class="learnline"><b>${LEARN.line}</b></p><ul class="howto">${UI.help.map(s=>`<li>${fill(s,{days:CFG.days,decisions:CFG.decisions,heart:HEART})}</li>`).join('')}</ul>
+<div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}
 function toggleSfx(){sfxOn=!sfxOn;soundIcons();if(sfxOn){primeAudio(true);sfx.pop()}}
 function toggleMusic(){primeAudio(true);if(musicOn&&!music.timer){startMusic();return}musicOn=!musicOn;soundIcons();if(musicOn)startMusic();else stopMusic()}
 function post(type,extra){try{window.postMessage(Object.assign({type},extra||{}),'*')}catch(e){}}
@@ -585,7 +617,7 @@ function vibrate(){post('VIBRATION_EVENT')}
 let completedSent=false;
 function markLearned(){if(completedSent)return;completedSent=true;post('COMPLETED_EVENT')}
 function exitGame(){post('CLOSE_EVENT')}
-function askLeave(){if(!S){exitGame();return}$('confirmText').textContent=sessionBest?'Этот город начнётся сначала. Ничего страшного. Лучший законченный результат останется в меню, пока игра открыта.':'Этот город начнётся сначала. Ничего страшного — можно сразу играть снова.';$('confirm').classList.add('show')}
+function askLeave(){if(!S){exitGame();return}$('confirmText').textContent=sessionBest?UI.leaveBest:UI.leavePlain;$('confirm').classList.add('show')}
 function hideConfirm(){$('confirm').classList.remove('show')}
 function leaveToMenu(){hideConfirm();hide();closeSheet();S=null;toStart()}
 /* ===== СТАРТ: фон, облака, логотип ===== */
@@ -641,9 +673,9 @@ function toStart(){
   const st=$('start');st.className='start';
   st.innerHTML=`<img class="sbg" src="img/start.webp" alt="" decoding="async" onerror="this.remove()">
   <div class="cl cl1">${cloudSVG(0,0)}</div><div class="cl cl2">${cloudSVG(1,1)}</div><div class="cl cl3">${cloudSVG(0,1)}</div><div class="cl cl4">${cloudSVG(1,0)}</div><div class="cl cl5">${cloudSVG(0,0)}</div><div class="cl cl6">${cloudSVG(1,1)}</div>
-  <div class="sbar2"><button class="icon" data-act="exit" aria-label="Выйти">✕</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="Звуковые эффекты"></button><button class="icon" data-act="music" data-music aria-label="Музыка"></button></div></div>
-  <div class="logo2"><div class="bob">${logoSVG()}</div><div class="tag2">Стань мэром и управляй бюджетом</div></div>
-  <div class="cta2">${sessionBest?`<div class="best">Лучший результат: ${sessionBest}</div>`:''}<button class="big2" data-act="start">Начать игру <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>5–10 минут · как играть</button></div>`;
+  <div class="sbar2"><button class="icon" data-act="exit" aria-label="${UI.exit}">✕</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="${UI.sfx}"></button><button class="icon" data-act="music" data-music aria-label="${UI.music}"></button></div></div>
+  <div class="logo2"><div class="bob">${logoSVG()}</div><div class="tag2">${esc(COPY.tag)}</div></div>
+  <div class="cta2">${sessionBest?`<div class="best">${fill(UI.menuBest,{pts:sessionBest})}</div>`:''}<button class="big2" data-act="start">${UI.play} <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>${esc(COPY.time)}</button></div>`;
   soundIcons();
 }
 function openStart(){
@@ -659,13 +691,13 @@ document.addEventListener('click',e=>{
     case 'start':openStart();break;
     case 'again':newGame(S.city);break;
     case 'rename':$('cityName').value=randomName();break;
-    case 'go':newGame(esc($('cityName').value.trim()).slice(0,16)||'Солнечноград');break;
+    case 'go':newGame(esc($('cityName').value.trim()).slice(0,16)||CITY_NAMES[0]);break;
     case 'home':S=null;toStart();$('start').classList.remove('hidden');break;
     case 'help':help();break;
     case 'close':hide();break;
     case 'startday':hide();{const q=$('req');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop')}break;
     case 'b':openB(v);break;
-    case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?'Просьба выполнена — спасибо, мэр!':'Подумай, какое здание поможет. Найди его в городе и поддержи.'}</p><div class="actions"><button class="btn primary" data-act="close">Понятно</button></div>`)}break;
+    case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?UI.reqDone:UI.reqOpen}</p><div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}break;
     case 'support':support(v);break;
     case 'closeSheet':closeSheet();break;
     case 'evening':evening();break;
@@ -685,5 +717,43 @@ document.addEventListener('click',e=>{
 });
 $('sheetShade').addEventListener('click',e=>{if(e.target===$('sheetShade'))closeSheet()});
 $('confirm').addEventListener('click',e=>{if(e.target===$('confirm'))hideConfirm()});
-soundIcons();
-toStart();
+function contentOk(d){
+  if(!d||typeof d!=='object'||!d.cfg||!Array.isArray(d.cfg.stars)||!d.cfg.stars.length||!(d.cfg.days>=1))return false;
+  if(!d.buildings||!BUILD_IDS.every(id=>{const b=d.buildings[id];return b&&b.name&&Array.isArray(b.cost)&&b.cost.length&&b.desc&&b.eff}))return false;
+  if(!Array.isArray(d.residents)||d.residents.length<d.cfg.days)return false;
+  if(!d.residents.every(r=>r&&r.who&&r.name&&r.text&&r.hit&&r.miss&&BUILD_IDS.includes(r.target)&&r.hair&&r.skin))return false;
+  if(!d.news||!BUILD_IDS.every(id=>typeof d.news[id]==='string'))return false;
+  if(!Array.isArray(d.cities)||!d.cities.length||!d.cities.every(n=>typeof n==='string'&&n.trim()))return false;
+  if(!(d.learn&&d.learn.line&&d.learn.aim&&d.learn.budget&&d.copy&&d.copy.tag&&d.copy.time&&d.ui))return false;
+  const need=['dayPill','toCity','toMenu','play','helpTitle','leaveTitle','leavePlain','leaveBest','gameTitle','exit'];
+  if(!need.every(k=>typeof d.ui[k]==='string'&&d.ui[k]))return false;
+  if(!Array.isArray(d.ui.help)||!d.ui.help.length||!Array.isArray(d.ui.tips)||!d.ui.tips.length)return false;
+  if(!d.ui.roles||!d.ui.roles.empty||!Array.isArray(d.ui.coinForms)||d.ui.coinForms.length!==3)return false;
+  return Array.isArray(d.ui.forecastSun)&&Array.isArray(d.ui.forecastCloud)&&Array.isArray(d.ui.forecastRain);
+}
+function applyContent(d){
+  CFG=d.cfg;if(!CFG.festDay)CFG.festDay=3;if(!CFG.stormDay)CFG.stormDay=5;
+  if(!CFG.mayorHearts)CFG.mayorHearts=6;if(!CFG.mayorCoins)CFG.mayorCoins=110;if(!CFG.sunAt)CFG.sunAt=70;if(!CFG.cloudAt)CFG.cloudAt=40;
+  B=d.buildings;IDS=BUILD_IDS.slice();RESIDENTS=d.residents;TOP_NEWS=d.news;CITY_NAMES=d.cities;LEARN=d.learn;COPY=d.copy;UI=d.ui;
+  document.title=UI.gameTitle;
+  $('confirmTitle').textContent=UI.leaveTitle;$('confirmText').textContent=UI.leavePlain;
+  document.querySelector('#confirm [data-act=stay]').textContent=UI.stay;
+  document.querySelector('#confirm [data-act=leave]').textContent=UI.toMenu;
+  document.querySelector('[data-act=askLeave]').setAttribute('aria-label',UI.toMenu);
+  document.querySelector('[data-sfx]').setAttribute('aria-label',UI.sfx);
+  document.querySelector('[data-music]').setAttribute('aria-label',UI.music);
+  $('happyPill').title=UI.happyTitle;
+  $('endBtn').textContent=UI.endDay;
+  $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});
+}
+function showContentError(){
+  $('start').className='start';
+  $('start').innerHTML='<div class="broken"><h2>Не получилось открыть игру</h2><p>Файл с текстами пустой или сломан. Нужен целый data/content.json рядом с игрой.</p></div>';
+}
+function boot(){
+  fetch('data/content.json').then(r=>{if(!r.ok)throw new Error('load');return r.json()}).then(data=>{
+    if(!contentOk(data))throw new Error('shape');
+    applyContent(data);soundIcons();toStart();
+  }).catch(()=>showContentError());
+}
+boot();
