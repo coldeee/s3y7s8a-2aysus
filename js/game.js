@@ -366,7 +366,9 @@ function fitMap(){
   let mw=W,mh=W/MAP_RATIO;if(mh<H){mh=H;mw=H*MAP_RATIO}
   Object.assign(w.style,{width:mw+'px',height:mh+'px',left:(W-mw)/2+'px',top:(H-mh)/2+'px'});
 }
-window.addEventListener('resize',fitMap);
+function onResize(){fitMap();fitScreens()}
+window.addEventListener('resize',onResize);
+if(window.visualViewport)visualViewport.addEventListener('resize',onResize);
 function renderMap(){
   if(!MAP_OK){$('map').innerHTML=citySVG({vb:'0 -70 400 866',slice:true,markers:true});return}
   if(!mapBuilt||!$('mwrap'))buildMap();
@@ -433,6 +435,7 @@ function render(){
   const dots=Array.from({length:CFG.decisions},(_,k)=>`<i class="${k<S.dec?'':'off'}"></i>`).join('');
   $('decs').innerHTML=fill(UI.upgrades,{dots,have:S.dec,max:CFG.decisions});
   $('endBtn').textContent=S.day===CFG.days?UI.endLast:UI.endDay;
+  fitSoon();
 }
 function effList(id){
   const e=B[id].eff;let h='';
@@ -448,13 +451,13 @@ function openB(id){
   const can=!max&&S.dec>0&&S.coins>=cost;
   const why=max?UI.alreadyMax:S.dec<=0?UI.noDecisions:S.coins<cost?UI.noCoins:'';
   const lvl=max?fill(UI.levelMax,{level:lv+1}):fill(UI.levelStep,{from:lv+1,to:lv+2});
-  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button>
+  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button><div class="stage">
   <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${lvl}</div></div></div>
   <p>${b.desc}</p>
   ${max?'':`<div class="effs">${effList(id)}</div>`}
   ${max?'':`<div class="nobox"><b>${UI.ifSkip}</b>${b.no}</div>`}
-  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`;
-  $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();
+  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div></div>`;
+  $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();fitSoon();
 }
 function closeSheet(){$('sheetShade').classList.remove('show');if(S&&S.focus){S.focus=null;renderMap()}}
 function support(id){
@@ -615,10 +618,10 @@ function finale(){
   const prev=sessionBest,fresh=pts>prev;if(fresh)sessionBest=pts;
   const record=prev>0&&fresh?fill(UI.recordNew,{pts}):prev>0&&pts<prev?fill(UI.recordLow,{pts,best:sessionBest}):fill(UI.record,{pts:sessionBest});
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
-  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
-  <div class="rpanel np">${paper}
+  $('result').innerHTML=`<div class="stage"><div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:clamp(14px,2.2dvh,17px);font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
+  <div class="rbody"><div class="rpanel np">${paper}
   <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
-  <div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
+  <div class="rside"><div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
     <div class="rrow"><span>${smile(S.happy)} ${UI.rowHappy}</span><b>+${sc.happy}</b></div>
     <div class="rrow"><span>${PEOPLE} ${fill(UI.rowPeople,{people:S.people})}</span><b>+${sc.people}</b></div>
     <div class="rrow"><span>${HEART} ${fill(UI.rowHearts,{hearts:S.hearts,days:CFG.days})}</span><b>+${sc.hearts}</b></div>
@@ -629,8 +632,8 @@ function finale(){
     <div class="rrow"><span>${UI.rowIncome}</span><b>${inc.tax+inc.shop-inc.upkeep}${COIN}</b></div>
   </div>
   <div class="rpanel"><b>${UI.gotTitle}</b><ul class="ins">${ins.map(x=>`<li>${x}</li>`).join('')}</ul>
-  <div class="actions"><button class="btn secondary" data-act="again">${UI.again}</button><button class="btn ghost" data-act="home">${UI.toMenu}</button></div></div>`;
-  $('result').classList.remove('hidden');$('result').scrollTop=0;sfx.win();
+  <div class="actions"><button class="btn secondary" data-act="again">${UI.again}</button><button class="btn ghost" data-act="home">${UI.toMenu}</button></div></div></div></div></div>`;
+  $('result').classList.remove('hidden');sfx.win();fitSoon();
   if(S.st.built>0&&S.st.storm)markLearned();
   post('FINISH_EVENT');
 }
@@ -679,7 +682,79 @@ function share(){
 }
 
 /* ================= ОБЩЕЕ ================= */
-function show(html,opt){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');$('dialog').innerHTML=html+(playing?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'');$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');$('dialog').scrollTop=0}
+function outerH(el){if(!el||getComputedStyle(el).display==='none')return 0;const cs=getComputedStyle(el);return el.offsetHeight+parseFloat(cs.marginTop)+parseFloat(cs.marginBottom)}
+function fitStage(stage,availW,availH){
+  if(!stage||availW<2||availH<2)return;
+  stage.style.maxWidth='none';
+  let s=1;
+  for(let i=0;i<5;i++){
+    stage.style.zoom='1';
+    stage.style.width=s>0.985?'100%':(100/s)+'%';
+    const h=stage.scrollHeight,w=stage.scrollWidth;
+    const next=Math.min(1,availH/Math.max(h,1),availW/Math.max(w,1));
+    if(next>0.985){s=1;break}
+    if(Math.abs(next-s)<0.012){s=next;break}
+    s=next;
+  }
+  s=Math.max(0.05,Math.min(1,s));
+  stage.style.zoom='1';
+  stage.style.width=s>0.985?'100%':(100/s)+'%';
+  const h=stage.scrollHeight,w=stage.scrollWidth;
+  const finalS=Math.max(0.05,Math.min(1,availH/Math.max(h,1),availW/Math.max(w,1)));
+  if(finalS>0.985){stage.style.zoom='1';stage.style.width='100%';return}
+  stage.style.zoom=String(finalS);
+}
+function bindFitImages(stage){
+  stage.querySelectorAll('img').forEach(img=>{
+    if(img.dataset.fitbound)return;
+    img.dataset.fitbound='1';
+    img.addEventListener('load',fitSoon);
+  });
+}
+function fitOverlay(shade){
+  if(!shade||getComputedStyle(shade).display==='none')return;
+  const box=shade.querySelector(':scope > .dialog, :scope > .sheet');
+  if(!box)return;
+  const stage=box.querySelector(':scope > .stage');
+  if(!stage)return;
+  const scs=getComputedStyle(shade);
+  const availH=shade.clientHeight-parseFloat(scs.paddingTop)-parseFloat(scs.paddingBottom);
+  const availW=shade.clientWidth-parseFloat(scs.paddingLeft)-parseFloat(scs.paddingRight);
+  box.style.maxHeight=Math.max(0,availH)+'px';
+  box.style.maxWidth='100%';
+  const bcs=getComputedStyle(box);
+  const innerH=Math.max(1,availH-parseFloat(bcs.paddingTop)-parseFloat(bcs.paddingBottom));
+  const innerW=Math.max(1,availW-parseFloat(bcs.paddingLeft)-parseFloat(bcs.paddingRight));
+  fitStage(stage,innerW,innerH);
+  bindFitImages(stage);
+}
+function fitPanel(box){
+  if(!box||box.classList.contains('hidden')||getComputedStyle(box).display==='none')return;
+  const stage=box.querySelector(':scope > .stage');
+  if(!stage)return;
+  const bcs=getComputedStyle(box);
+  const innerH=Math.max(1,box.clientHeight-parseFloat(bcs.paddingTop)-parseFloat(bcs.paddingBottom));
+  const innerW=Math.max(1,box.clientWidth-parseFloat(bcs.paddingLeft)-parseFloat(bcs.paddingRight));
+  fitStage(stage,innerW,innerH);
+  bindFitImages(stage);
+}
+function fitHud(){
+  const hud=document.querySelector('.hud'),req=$('req'),bottom=document.querySelector('.bottom'),app=$('app');
+  if(!hud||!bottom||!app)return;
+  hud.style.zoom='1';if(req)req.style.zoom='1';bottom.style.zoom='1';
+  const needH=outerH(hud)+outerH(req)+outerH(bottom);
+  const sH=needH>app.clientHeight&&app.clientHeight>0?app.clientHeight/needH:1;
+  const needW=hud.scrollWidth,haveW=hud.clientWidth;
+  const sW=needW>haveW+1&&haveW>0?haveW/needW:1;
+  const hudS=Math.min(sH,sW);
+  hud.style.zoom=hudS<0.999?String(Math.max(0.05,hudS)):'1';
+  const z=sH<0.999?String(Math.max(0.05,sH)):'1';
+  if(req&&getComputedStyle(req).display!=='none')req.style.zoom=z;
+  bottom.style.zoom=z;
+}
+function fitScreens(){fitHud();fitOverlay($('shade'));fitOverlay($('sheetShade'));fitOverlay($('confirm'));fitPanel($('result'))}
+function fitSoon(){fitScreens();requestAnimationFrame(fitScreens)}
+function show(html,opt){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');const menu=playing?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'';$('dialog').innerHTML=`<div class="stage">${html}${menu}</div>`;$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');fitSoon()}
 function hide(){$('shade').classList.remove('show','dismiss')}
 let tt;function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1900)}
 function randomName(){return CITY_NAMES[Math.floor(Math.random()*CITY_NAMES.length)]}
@@ -693,7 +768,7 @@ function vibrate(){post('VIBRATION_EVENT')}
 let completedSent=false;
 function markLearned(){if(completedSent)return;completedSent=true;post('COMPLETED_EVENT')}
 function exitGame(){post('CLOSE_EVENT')}
-function askLeave(){if(!S){exitGame();return}$('confirmText').textContent=sessionBest?UI.leaveBest:UI.leavePlain;$('confirm').classList.add('show')}
+function askLeave(){if(!S){exitGame();return}$('confirmText').textContent=sessionBest?UI.leaveBest:UI.leavePlain;$('confirm').classList.add('show');fitSoon()}
 function hideConfirm(){$('confirm').classList.remove('show')}
 function leaveToMenu(){hideConfirm();hide();closeSheet();S=null;toStart()}
 /* ===== СТАРТ: фон, облака, логотип ===== */
@@ -749,10 +824,12 @@ function toStart(){
   const st=$('start');st.className='start';
   st.innerHTML=`<img class="sbg" src="img/start.webp" alt="" decoding="async" onerror="this.remove()">
   <div class="cl cl1">${cloudSVG(0,0)}</div><div class="cl cl2">${cloudSVG(1,1)}</div><div class="cl cl3">${cloudSVG(0,1)}</div><div class="cl cl4">${cloudSVG(1,0)}</div><div class="cl cl5">${cloudSVG(0,0)}</div><div class="cl cl6">${cloudSVG(1,1)}</div>
+  <div class="stage">
   <div class="sbar2"><button class="icon" data-act="exit" aria-label="${UI.exit}">✕</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="${UI.sfx}"></button><button class="icon" data-act="music" data-music aria-label="${UI.music}"></button></div></div>
-  <div class="logo2"><div class="bob">${logoSVG()}</div><div class="tag2">${esc(COPY.tag)}</div></div>
-  <div class="cta2">${sessionBest?`<div class="best">${fill(UI.menuBest,{pts:sessionBest})}</div>`:''}<button class="big2" data-act="start">${UI.play} <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>${esc(COPY.time)}</button></div>`;
-  soundIcons();
+  <div class="logoWrap"><div class="logo2"><div class="bob">${logoSVG()}</div></div><div class="tag2">${esc(COPY.tag)}</div></div>
+  <div class="cta2">${sessionBest?`<div class="best">${fill(UI.menuBest,{pts:sessionBest})}</div>`:''}<button class="big2" data-act="start">${UI.play} <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>${esc(COPY.time)}</button></div>
+  </div>`;
+  soundIcons();fitSoon();
 }
 function openStart(){
   const st=$('start');if(st.classList.contains('opening'))return;
@@ -844,3 +921,4 @@ function boot(){
   });
 }
 boot();
+document.fonts.ready.then(fitSoon);
