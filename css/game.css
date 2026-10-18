@@ -1,4 +1,4 @@
-#app{position:relative;width:100%;max-width:100%;height:100%;height:100vh;height:100dvh;min-height:0;margin:0;overflow:hidden;background:#3d8fd8}
+#app{position:fixed;inset:0;width:auto;max-width:none;min-height:0;margin:0;overflow:hidden;background:#3d8fd8}
 .map{position:absolute;inset:0}
 .map svg{width:100%;height:100%;display:block}
 [data-act]{cursor:pointer}
@@ -15,7 +15,8 @@
 .hud .icon{width:42px;height:42px;border-radius:14px;background:#fffdf8;box-shadow:0 4px 12px #1b2e6a38,inset 0 0 0 1.5px #ffffffd0}
 .hud .icon svg{width:23px;height:23px}
 .hud .icon[aria-pressed=false]{background:#f0ecf8;color:#a79fc2}
-.hud .icon.exit{font-size:18px;color:#5b5480;width:38px;height:38px;border-radius:50%}
+.hud .icon.exit{color:#5b5480;width:38px;height:38px;border-radius:50%}
+.hud .icon.exit svg{width:22px;height:22px}
 .daycard{flex:1 1 auto;min-width:0;max-width:206px;height:54px;box-sizing:border-box;display:flex;align-items:center;gap:9px;padding:0 13px 0 8px;background:#fffdf8;border-radius:20px;box-shadow:0 4px 14px #1b2e6a38,inset 0 0 0 1.5px #ffffffd0}
 .dcity{flex:none;width:42px;height:42px;display:block;filter:drop-shadow(0 2px 3px #1b2e6a40)}
 .dcity svg{width:100%;height:100%;display:block}
@@ -57,7 +58,8 @@
 .req .chev{margin-left:auto;font-size:24px;color:var(--g);font-weight:900}
 .heart{color:#e8574a}
 /* низ */
-.bottom{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(#1c0f4a00,#1c0f4aa8 35%,#1c0f4ad8)}
+.bottom{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:10px 12px calc(12px + env(safe-area-inset-bottom));background:transparent}
+.bottom::before{content:"";position:absolute;left:0;right:0;top:0;bottom:env(safe-area-inset-bottom,0px);background:linear-gradient(#1c0f4a00,#1c0f4aa8 35%,#1c0f4ad8);pointer-events:none;z-index:-1}
 .decs{display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-weight:800;font-size:14px;margin:4px 0 9px}
 .decs i{width:18px;height:18px;border-radius:50%;background:#d4b8ff;display:inline-block;box-shadow:inset 0 -2px 0 #8a5cf0}
 .decs i.off{background:#ffffff40;box-shadow:none}
@@ -85,7 +87,8 @@
 .nobox{background:#f4f0fb;border-radius:14px;padding:10px 12px;margin-top:10px;font-size:13px;color:#5b5480}
 .nobox b{display:block;color:var(--ink);margin-bottom:3px;font-size:14px}
 .sacts{display:grid;gap:8px;margin-top:14px}
-.x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;background:#efe9fb;font-size:18px;font-weight:900;color:#5b5480}
+.x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;background:#efe9fb;color:#5b5480;display:flex;align-items:center;justify-content:center}
+.x svg,.icon.exit svg{width:22px;height:22px;display:block}
 /* диалог */
 .shade{position:absolute;inset:0;z-index:14;background:#1c0f4ac4;display:none;align-items:center;justify-content:center;padding:14px;overflow:hidden}
 .shade.show{display:flex}

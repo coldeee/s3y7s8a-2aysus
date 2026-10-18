@@ -31,6 +31,7 @@ const SND_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-
 const SND_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 const NOTE_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" stroke="none"/><circle cx="17" cy="16" r="3" fill="currentColor" stroke="none"/></svg>';
 const NOTE_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M4 4l16 16"/></svg>';
+const X_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 function soundIcons(){
   document.querySelectorAll('[data-sfx]').forEach(b=>{b.innerHTML=sfxOn?SND_ON:SND_OFF;b.setAttribute('aria-pressed',sfxOn?'true':'false')});
   document.querySelectorAll('[data-music]').forEach(b=>{b.innerHTML=musicOn?NOTE_ON:NOTE_OFF;b.setAttribute('aria-pressed',musicOn?'true':'false')});
@@ -339,7 +340,7 @@ function openB(id){
   const can=!max&&S.dec>0&&S.coins>=cost;
   const why=max?UI.alreadyMax:S.dec<=0?UI.noDecisions:S.coins<cost?UI.noCoins:'';
   const lvl=max?fill(UI.levelMax,{level:lv+1}):fill(UI.levelStep,{from:lv+1,to:lv+2});
-  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button><div class="stage">
+  $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">${X_SVG}</button><div class="stage">
   <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${lvl}</div></div></div>
   <p>${b.desc}</p>
   ${max?'':`<div class="effs">${effList(id)}</div>`}
@@ -713,7 +714,7 @@ function toStart(){
   st.innerHTML=`<img class="sbg" src="img/start.webp" alt="" decoding="async" onerror="this.remove()">
   <div class="cl cl1">${cloudSVG(0,0)}</div><div class="cl cl2">${cloudSVG(1,1)}</div><div class="cl cl3">${cloudSVG(0,1)}</div><div class="cl cl4">${cloudSVG(1,0)}</div><div class="cl cl5">${cloudSVG(0,0)}</div><div class="cl cl6">${cloudSVG(1,1)}</div>
   <div class="stage">
-  <div class="sbar2"><button class="icon" data-act="exit" aria-label="${UI.exit}">✕</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="${UI.sfx}"></button><button class="icon" data-act="music" data-music aria-label="${UI.music}"></button></div></div>
+  <div class="sbar2"><button class="icon exit" data-act="exit" aria-label="${UI.exit}">${X_SVG}</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="${UI.sfx}"></button><button class="icon" data-act="music" data-music aria-label="${UI.music}"></button></div></div>
   <div class="logoWrap"><div class="logo2"><div class="bob">${logoSVG()}</div></div><div class="tag2">${esc(COPY.tag)}</div></div>
   <div class="cta2">${sessionBest?`<div class="best">${fill(UI.menuBest,{pts:sessionBest})}</div>`:''}<button class="big2" data-act="start">${UI.play} <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>${esc(COPY.time)}</button></div>
   </div>`;
