@@ -481,7 +481,7 @@ function paperHTML(n){
   <div class="mast">${fill(UI.mast,{city:esc(S.city)})}</div>
   <div class="date">${fill(UI.paperDate,{days:CFG.days})}</div>
   <h3>${n[0]}</h3>
-  ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="">${pins}</div></div><figcaption>${fill(UI.photoCap,{city:esc(S.city)})}</figcaption></figure>`:''}
+  ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="" decoding="async">${pins}</div></div><figcaption>${fill(UI.photoCap,{city:esc(S.city)})}</figcaption></figure>`:''}
   <div class="pcols"><div><div class="psec">${UI.secNews}</div>${n.slice(1).map(t=>`<div class="more">${t}</div>`).join('')||`<div class="more">${UI.paperQuiet}</div>`}</div>
   <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.final?S.final.pts:0}</b>${UI.numRating}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
   <div class="psec">${UI.secVoices}</div>
@@ -507,7 +507,7 @@ function finale(){
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
   $('result').innerHTML=`<div class="stage"><div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:clamp(14px,calc(2.2*var(--vh)),17px);font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
   <div class="rbody"><div class="rpanel np">${paper}
-  <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
+  <div class="actions"><button class="btn primary" data-act="sharePaper">${UI.sharePaper}</button></div></div>
   <div class="rside"><div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
     <div class="rrow"><span>${smile(S.happy)} ${UI.rowHappy}</span><b>+${sc.happy}</b></div>
     <div class="rrow"><span>${PEOPLE} ${fill(UI.rowPeople,{people:S.people})}</span><b>+${sc.people}</b></div>
@@ -526,7 +526,7 @@ function finale(){
 }
 function roundRect(x,X,Y,w,h,r,fill){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();x.fillStyle=fill;x.fill()}
 function loadImg(src){return new Promise(res=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src})}
-async function makeCard(){
+async function makeCard(send){
   await document.fonts.ready;
   const f=S.final,people=paperPeople(),W=720,H=1280;
   const [city,...faces]=await Promise.all([MAP_OK?loadImg(MAP_IMG):Promise.resolve(null),...people.map(p=>loadImg('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(face(p.r,120,moodOf(p.hit)))))]);
@@ -561,10 +561,13 @@ async function makeCard(){
   };
   const res=draw(true)||draw(false)||{cv:null,url:''};
   S.cardCanvas=res.cv;S.cardUrl=res.url;
+  if(send){share();return}
   show(`<h2>${UI.cardTitle}</h2>${res.url?`<img class="cardimg" src="${res.url}" alt="${UI.cardAlt}">`:''}<div class="actions"><button class="btn primary" data-act="share">${UI.cardSend}</button><button class="btn secondary" data-act="close">${UI.back}</button></div>`);
 }
+let paperBusy=false;
+async function sharePaper(){if(paperBusy)return;paperBusy=true;try{await makeCard(true)}finally{paperBusy=false}}
 function share(){
-  const text=fill(UI.shareText,{city:esc(S.city),pts:S.final.pts,title:S.final.title,bench:CFG.ratingBench});
+  const text=fill(UI.shareText,{city:S.city,pts:S.final.pts,title:S.final.title,bench:CFG.ratingBench});
   post('SHARING_EVENT',{text,image:S.cardUrl||undefined});vibrate();
 }
 
@@ -739,6 +742,7 @@ document.addEventListener('click',e=>{
     case 'event':applyEvent(v);break;
     case 'card':makeCard();break;
     case 'share':share();break;
+    case 'sharePaper':sharePaper();break;
     case 'sound':toggleSound();break;
     case 'askLeave':askLeave();break;
     case 'stay':hideConfirm();break;
