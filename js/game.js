@@ -1,7 +1,7 @@
 'use strict';
 /* Тексты, цены и жители — в data/content.json. Ключи зданий не переименовывать. */
 const BUILD_IDS=['homes','school','shop','lights','park'];
-let CFG,B,IDS,RESIDENTS,TOP_NEWS,CITY_NAMES,LEARN,COPY,UI;
+let CFG,B,IDS,RESIDENTS,TOP_NEWS,CITY_NAMES,LEARN,COPY,UI,EVENTS;
 /* три своих темы по кругу. Не чужие мелодии. */
 const PIECES=[{bpm:80,loop:64,
   bass:[
@@ -389,11 +389,12 @@ const today=()=>RESIDENTS[S.day-1];
 function newGame(city){
   S={day:1,coins:CFG.startCoins,happy:CFG.startHappy,people:CFG.startPeople,lvl:{shop:0,homes:0,park:0,school:0,lights:0},
      city:city||CITY_NAMES[0],focus:null,log:[],news:[],spendBy:{shop:0,homes:0,park:0,school:0,lights:0},dec:CFG.decisions,reqDone:false,hearts:0,fest:0,anim:null,hist:[],
-     st:{shopSpent:0,shopEarned:0,festSpent:0,festEarned:0,storm:null,missed:[],built:0,spent:0,deposit:0,debt:0,creditFee:0}};
+     st:{shopSpent:0,shopEarned:0,festSpent:0,festEarned:0,storm:null,missed:[],built:0,spent:0,deposit:0,debt:0,creditFee:0,events:{}}};
   $('start').classList.add('hidden');$('result').classList.add('hidden');
   morning();
 }
-function income(){return {tax:CFG.baseTax+Math.floor(S.people/CFG.perTax),shop:S.lvl.shop*B.shop.eff.income,fest:S.fest>0?CFG.festBonus:0,upkeep:IDS.reduce((a,id)=>a+S.lvl[id],0)}}
+function festBonus(){const ev=(EVENTS||[]).find(e=>e.id==='fest');return ev&&ev.bonus!=null?ev.bonus:(CFG.festBonus||0)}
+function income(){return {tax:CFG.baseTax+Math.floor(S.people/CFG.perTax),shop:S.lvl.shop*B.shop.eff.income,fest:S.fest>0?festBonus():0,upkeep:IDS.reduce((a,id)=>a+S.lvl[id],0)}}
 function dayMoney(){const inc=income();return {inc,inn:inc.tax+inc.shop+inc.fest,upkeep:inc.upkeep}}
 function hideFlow(){const b=$('flowbox');if(b)b.classList.remove('show')}
 function toggleFlow(){
@@ -422,6 +423,7 @@ function render(){
   renderMap();
   if(S.anim)setTimeout(()=>{if(S){S.anim=null}},900);
   $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('coins').textContent=S.coins;$('happy').textContent=S.happy;$('smile').innerHTML=smile(S.happy);
+  $('people').textContent=S.people;$('peopleIco').innerHTML=PEOPLE;
   const flow=dayMoney();$('dayIn').textContent='+'+flow.inn;$('dayOut').textContent='−'+flow.upkeep;$('flowBtn').setAttribute('aria-label',UI.flowLabel);
   const r=today();
   $('req').className='req'+(S.reqDone?' done':'');
@@ -470,30 +472,53 @@ function morning(){
   S.dec=CFG.decisions;S.reqDone=false;render();
   const r=today();
   const intro=S.day===1?`<ul class="howto">${UI.tips.map(s=>`<li>${fill(s,{aim:LEARN.aim})}</li>`).join('')}</ul>`:'';
-  let ev='',btns=`<button class="btn primary" data-act="startday">${UI.toCity}</button>`;
-  if(S.day===CFG.festDay){ev=`<div class="event"><b>${UI.festTitle}</b><p>${fill(UI.festText,{festDays:CFG.festDays})}</p></div>`;
-    btns=`<button class="opt go" data-act="fest" data-v="yes" ${S.coins>=CFG.festCost?'':'disabled'}><b>${UI.festYes}</b><small>${fill(UI.festYesNote,{cost:CFG.festCost,bonus:CFG.festBonus,festDays:CFG.festDays})}</small></button><button class="opt" data-act="fest" data-v="no"><b>${UI.festNo}</b><small>${UI.festNoNote}</small></button>`}
-  if(S.day===CFG.stormDay){ev=`<div class="event"><b>${UI.stormTitle}</b><p>${fill(UI.stormText,{cost:mon(CFG.stormCost)})}</p></div>`;
-    btns=`<button class="opt go" data-act="storm" data-v="pay" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="credit"><b>${UI.stormCredit}</b><small>${fill(UI.stormCreditNote,{cost:CFG.stormCost,extra:CFG.creditExtra,back:CFG.stormCost+CFG.creditExtra})}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
   const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
   const portrait=S.day===1?'':face(r,54);
   show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}
-  <div class="quote">${portrait}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
+  <div class="quote">${portrait}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`);
 }
-function fest(yes){
-  if(yes){S.coins-=CFG.festCost;S.fest=CFG.festDays;S.st.festSpent=CFG.festCost;S.news.push({w:2,t:UI.festNews});sfx.coin();
-    show(`<h2>${UI.festStartTitle}</h2><p>${fill(UI.festStartText,{spent:mon(CFG.festCost),festDays:CFG.festDays,bonus:CFG.festBonus})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
-  else{S.st.festSpent=0;show(`<h2>${UI.festSkipTitle}</h2><p>${UI.festSkipText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
-  render();
+function evNum(ev,v){
+  if(v==='-cost')return -(ev.cost||0);
+  if(v==='cost')return ev.cost||0;
+  if(v==='bonus')return ev.bonus||0;
+  if(v==='span')return ev.span||0;
+  if(v==='extra')return ev.extra||0;
+  if(v==='back')return (ev.cost||0)+(ev.extra||0);
+  if(v==='happyHit')return ev.happy||0;
+  return v;
 }
-function storm(mode){
-  if(mode==='pay'&&S.coins>=CFG.stormCost){S.coins-=CFG.stormCost;S.st.storm='paid';S.news.push({w:1,t:UI.stormFixedNews});sfx.coin();
-    show(`<h2>${UI.stormFixedTitle}</h2><p>${UI.stormFixedText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
-  else if(mode==='credit'){const back=CFG.stormCost+CFG.creditExtra;S.st.debt+=back;S.st.creditFee+=CFG.creditExtra;S.st.storm='credit';S.news.push({w:1,t:UI.stormCreditNews});sfx.coin();
-    show(`<h2>${UI.stormCreditTitle}</h2><p>${fill(UI.stormCreditText,{back,extra:CFG.creditExtra})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
-  else{S.happy=clamp(S.happy+CFG.stormHappy,0,100);S.st.storm='skip';S.news.push({w:1.5,t:UI.stormSkipNews});sfx.bad();
-    show(`<h2>${UI.stormSkipTitle}</h2><p>${fill(UI.stormSkipText,{happy:CFG.stormHappy})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
+function eventVars(ev){return {cost:ev.cost||0,bonus:ev.bonus||0,span:ev.span||0,extra:ev.extra||0,back:(ev.cost||0)+(ev.extra||0),happy:ev.happy||0,coin:COIN}}
+function todayEvent(){return (EVENTS||[]).find(e=>e.day===S.day&&!S.st.events[e.id])}
+function openEvent(){
+  const ev=todayEvent();if(!ev)return;
+  const vars=eventVars(ev);
+  const choices=(ev.choices||[]).map(c=>{
+    const need=c.needCoins==null?0:typeof c.needCoins==='string'?evNum(ev,c.needCoins):c.needCoins;
+    const off=need&&S.coins<need;
+    return `<button class="opt${c.go?' go':''}" data-act="event" data-v="${ev.id}:${c.id}" ${off?'disabled':''}><b>${fill(c.label,vars)}</b><small>${fill(c.note||'',vars)}${off&&c.short?fill(c.short,vars):''}</small></button>`;
+  }).join('');
+  show(`<div class="kicker">${UI.eventKicker}</div><h2>${fill(ev.title,vars)}</h2><p>${fill(ev.text,vars)}</p>${choices}`);
+}
+function applyEvent(key){
+  const p=String(key).split(':'),ev=(EVENTS||[]).find(e=>e.id===p[0]),c=ev&&(ev.choices||[]).find(x=>x.id===p[1]);
+  if(!ev||!c||S.st.events[ev.id])return;
+  const need=c.needCoins==null?0:typeof c.needCoins==='string'?evNum(ev,c.needCoins):c.needCoins;
+  if(need&&S.coins<need)return;
+  const fx=c.effect||{},num=v=>typeof v==='string'?evNum(ev,v):v;
+  if(fx.coins)S.coins+=num(fx.coins);
+  if(fx.happy)S.happy=clamp(S.happy+num(fx.happy),0,100);
+  if(fx.fest)S.fest=num(fx.fest);
+  if(fx.festSpent!=null)S.st.festSpent=num(fx.festSpent);
+  if(fx.debt)S.st.debt+=num(fx.debt);
+  if(fx.creditFee)S.st.creditFee+=num(fx.creditFee);
+  if(fx.storm)S.st.storm=fx.storm;
+  if(fx.news)S.news.push({w:fx.newsW||1,t:fx.news});
+  S.st.events[ev.id]=c.id;
+  if(fx.sfx==='bad')sfx.bad();else if(fx.sfx!=='none')sfx.coin();
   render();
+  const vars=eventVars(ev);
+  if(c.after)show(`<h2>${fill(c.after.title,vars)}</h2><p>${fill(c.after.text,vars)}</p><div class="actions"><button class="btn primary" data-act="close">${UI.toCity}</button></div>`);
+  else hide();
 }
 function evening(){
   closeSheet();
@@ -731,7 +756,7 @@ document.addEventListener('click',e=>{
     case 'home':S=null;toStart();$('start').classList.remove('hidden');break;
     case 'help':help();break;
     case 'close':hide();break;
-    case 'startday':hide();{const q=$('req');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop')}break;
+    case 'startday':hide();{const q=$('req');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop')}openEvent();break;
     case 'b':openB(v);break;
     case 'flow':toggleFlow();break;
     case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?UI.reqDone:UI.reqOpen}</p><div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}break;
@@ -740,8 +765,7 @@ document.addEventListener('click',e=>{
     case 'evening':evening();break;
     case 'next':nextDay();break;
     case 'final':finale();break;
-    case 'fest':fest(v==='yes');break;
-    case 'storm':storm(v);break;
+    case 'event':applyEvent(v);break;
     case 'card':makeCard();break;
     case 'share':share();break;
     case 'sfx':toggleSfx();break;
@@ -761,8 +785,9 @@ function contentOk(d){
   if(!d.residents.every(r=>r&&r.who&&r.name&&r.text&&r.hit&&r.miss&&BUILD_IDS.includes(r.target)&&r.hair&&r.skin))return false;
   if(!d.news||!BUILD_IDS.every(id=>typeof d.news[id]==='string'))return false;
   if(!Array.isArray(d.cities)||!d.cities.length||!d.cities.every(n=>typeof n==='string'&&n.trim()))return false;
+  if(d.events!=null&&(!Array.isArray(d.events)||!d.events.every(e=>e&&e.id&&e.day&&e.title&&e.text&&Array.isArray(e.choices)&&e.choices.every(c=>c&&c.id&&c.label))))return false;
   if(!(d.learn&&d.learn.line&&d.learn.aim&&d.learn.budget&&d.copy&&d.copy.tag&&d.copy.time&&d.ui))return false;
-  const need=['dayPill','toCity','toMenu','play','helpTitle','leaveTitle','leavePlain','leaveBest','gameTitle','exit'];
+  const need=['dayPill','toCity','toMenu','play','helpTitle','leaveTitle','leavePlain','leaveBest','gameTitle','exit','eventKicker','peopleTitle'];
   if(!need.every(k=>typeof d.ui[k]==='string'&&d.ui[k]))return false;
   if(!Array.isArray(d.ui.help)||!d.ui.help.length||!Array.isArray(d.ui.tips)||!d.ui.tips.length)return false;
   if(!d.ui.roles||!d.ui.roles.empty||!Array.isArray(d.ui.coinForms)||d.ui.coinForms.length!==3)return false;
@@ -772,7 +797,7 @@ function applyContent(d){
   CFG=d.cfg;if(!CFG.festDay)CFG.festDay=3;if(!CFG.stormDay)CFG.stormDay=5;
   if(!CFG.mayorHearts)CFG.mayorHearts=6;if(!CFG.mayorCoins)CFG.mayorCoins=110;if(!CFG.sunAt)CFG.sunAt=70;if(!CFG.cloudAt)CFG.cloudAt=40;
   if(CFG.depositPercent==null)CFG.depositPercent=5;if(CFG.creditExtra==null)CFG.creditExtra=8;if(!CFG.ratingBench)CFG.ratingBench=240;if(!CFG.rating)CFG.rating={};
-  B=d.buildings;IDS=BUILD_IDS.slice();RESIDENTS=d.residents;TOP_NEWS=d.news;CITY_NAMES=d.cities;LEARN=d.learn;COPY=d.copy;UI=d.ui;
+  B=d.buildings;IDS=BUILD_IDS.slice();RESIDENTS=d.residents;TOP_NEWS=d.news;CITY_NAMES=d.cities;LEARN=d.learn;COPY=d.copy;UI=d.ui;EVENTS=d.events||[];
   document.title=UI.gameTitle;
   $('confirmTitle').textContent=UI.leaveTitle;$('confirmText').textContent=UI.leavePlain;
   document.querySelector('#confirm [data-act=stay]').textContent=UI.stay;
@@ -780,7 +805,7 @@ function applyContent(d){
   document.querySelector('[data-act=askLeave]').setAttribute('aria-label',UI.toMenu);
   document.querySelector('[data-sfx]').setAttribute('aria-label',UI.sfx);
   document.querySelector('[data-music]').setAttribute('aria-label',UI.music);
-  $('happyPill').title=UI.happyTitle;
+  $('happyPill').title=UI.happyTitle;$('peoplePill').title=UI.peopleTitle;
   $('endBtn').textContent=UI.endDay;
   $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});
 }

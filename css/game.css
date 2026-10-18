@@ -5,11 +5,13 @@
 .coin{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.22em;margin-left:3px;background:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><defs><linearGradient id='r' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%23ffe68a'/><stop offset='1' stop-color='%23c97a0c'/></linearGradient><radialGradient id='f' cx='.35' cy='.3' r='.85'><stop offset='0' stop-color='%23fff7c2'/><stop offset='.45' stop-color='%23ffd23f'/><stop offset='1' stop-color='%23f0a01a'/></radialGradient></defs><circle cx='20' cy='21.5' r='18' fill='%23a8620a'/><circle cx='20' cy='20' r='18' fill='url(%23r)'/><circle cx='20' cy='20' r='14.5' fill='url(%23f)'/><circle cx='20' cy='20' r='12' fill='none' stroke='%23e39a16' stroke-width='1.4' stroke-dasharray='1.6 2.2'/><path d='M16.5 28V12.5h5.2a4.4 4.4 0 0 1 0 8.8h-7.2M14.5 24.7h7' fill='none' stroke='%23b8680a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/><path d='M16.5 27V11.5h5.2a4.4 4.4 0 0 1 0 8.8h-7.2M14.5 23.7h7' fill='none' stroke='%23fff3c0' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/><path d='M8 15a13 13 0 0 1 9-8.5' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' fill='none' opacity='.85'/></svg>") center/contain no-repeat;filter:drop-shadow(0 1px 1px #8a4a0040)}
 .ico{width:1.35em;height:1.35em;vertical-align:-.3em}
 /* верх */
-.hud{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:4px;padding:calc(8px + env(safe-area-inset-top)) 8px 6px}
+.hud{position:absolute;top:0;left:0;right:0;z-index:3;display:flex;align-items:center;gap:3px;padding:calc(8px + env(safe-area-inset-top)) 8px 6px}
 .icon{background:#fdfbff;border-radius:13px;width:40px;height:40px;font-size:17px;font-weight:800;box-shadow:0 3px 10px #2a106040;flex:none;display:flex;align-items:center;justify-content:center;color:#3b2a7a}
 .icon svg{width:20px;height:20px}
 .audio{display:flex;gap:4px;flex:none}
-.hud .icon{width:34px;height:34px;border-radius:12px}
+.hud .icon{width:32px;height:32px;border-radius:12px}
+.hud .pill{padding:6px 6px;font-size:12px}
+#peopleIco .ico{width:15px;height:15px;vertical-align:-.2em}
 .hud .icon svg{width:18px;height:18px}
 .pill{background:#fdfbff;border-radius:12px;padding:7px 8px;font-size:13px;font-weight:800;box-shadow:0 3px 10px #2a106040;white-space:nowrap;display:flex;align-items:center;gap:4px;flex:none}
 .money{background:linear-gradient(180deg,#fff7d9,#ffe28f);color:#5e4100;font-size:16px;border:1.5px solid #f0c64f;flex-direction:column;align-items:flex-end;gap:0;padding:4px 8px;line-height:1.05}
