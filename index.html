@@ -12,10 +12,13 @@
 <main id="app">
   <div class="map" id="map"></div>
   <div class="hud">
-    <button class="icon" data-act="exit" aria-label="Выйти из игры">✕</button>
+    <button class="icon" data-act="askLeave" aria-label="В меню">✕</button>
     <div class="pill">День <span id="day">1</span> из 7</div>
     <div class="spacer"></div>
-    <button class="icon" data-act="sound" data-sound aria-label="Звук"></button>
+    <div class="audio">
+      <button class="icon" data-act="sfx" data-sfx aria-label="Звуковые эффекты"></button>
+      <button class="icon" data-act="music" data-music aria-label="Музыка"></button>
+    </div>
     <div class="pill" title="Счастье жителей"><span id="smile"></span><span id="happy">60</span></div>
     <div class="pill money"><span id="coins">0</span><i class="coin"></i></div>
   </div>
@@ -25,6 +28,16 @@
   <div class="shade" id="shade"><div class="dialog" id="dialog"></div></div>
   <div class="start" id="start"></div>
   <div class="result hidden" id="result"></div>
+  <div class="shade" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="dialog">
+      <h2 id="confirmTitle">Вернуться в меню?</h2>
+      <p id="confirmText">Этот город начнётся сначала. Ничего страшного — можно сразу играть снова.</p>
+      <div class="actions">
+        <button class="btn primary" data-act="stay">Остаться</button>
+        <button class="btn secondary" data-act="leave">В меню</button>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast"></div>
 </main>
 <script src="js/game.js"></script>
