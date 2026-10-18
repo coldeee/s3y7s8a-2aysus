@@ -129,7 +129,7 @@ window.GAME_CONTENT={
     "warnOne": "Монеток хватает на покупку.",
     "warnBack": "Вернуться в город",
     "endLast": "Закончить последний день",
-    "upgrades": "Улучшения сегодня {dots} {have} из {max}",
+    "upgrades": "Улучшений сегодня {dots} {have} из {max}",
     "thanksDone": "Спасибо! Просьба выполнена {heart} +1",
     "perDay": "в день",
     "peoplePlus": "жителей",
