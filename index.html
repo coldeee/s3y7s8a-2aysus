@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#4a2aa8">
+<title>Мой город</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<main id="app">
+  <div class="map" id="map"></div>
+  <div class="hud">
+    <button class="icon" data-act="exit" aria-label="Выйти из игры">✕</button>
+    <div class="pill">День <span id="day">1</span> из 7</div>
+    <div class="spacer"></div>
+    <button class="icon" data-act="sound" data-sound aria-label="Звук"></button>
+    <div class="pill" title="Счастье жителей"><span id="smile"></span><span id="happy">60</span></div>
+    <div class="pill money"><span id="coins">0</span><i class="coin"></i></div>
+  </div>
+  <button class="req" id="req" data-act="req"></button>
+  <div class="bottom"><div class="decs" id="decs"></div><button class="btn primary" id="endBtn" data-act="evening">Закончить день</button></div>
+  <div class="sheetShade" id="sheetShade"><section class="sheet" id="sheet"></section></div>
+  <div class="shade" id="shade"><div class="dialog" id="dialog"></div></div>
+  <div class="start" id="start"></div>
+  <div class="result hidden" id="result"></div>
+  <div class="toast" id="toast"></div>
+</main>
+<script src="js/game.js"></script>
+</body>
+</html>
