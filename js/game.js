@@ -335,17 +335,17 @@ function citySVG(o){
 const MAP_IMG='img/start.webp';let MAP_OK=true,MAP_RATIO=471/836,mapBuilt=false;
 /* координаты в процентах картинки: место иконки и контур здания для подсветки */
 const SPOTS={
-  homes: {pin:[21.5,34.5],poly:'13.5,37 22,32.5 30.5,36 30.5,41.8 22,44.8 13.5,41.8',c:['#ffbf7a','#ff6a3d']},
-  school:{pin:[58,39], poly:'49.5,41 58,36.2 67.5,40.5 67.5,48.2 58,51.8 49.5,48.2',c:['#8fd0ff','#3a6dff']},
-  shop:  {pin:[85,55.5], poly:'76,58.5 86,54.2 97,57.5 97,64.8 86,67.8 76,63.8',c:['#ffa3d6','#e8457f']},
-  park:  {pin:[37.5,64.5],poly:'28,66.5 38,62 50,65.3 48.5,70.8 36,73.2 28,70.2',c:['#a4f383','#1fae58']},
-  lights:{pin:[53,58.5],poly:'44,61 52,57.4 62.5,58.4 62.5,61.6 52,64.6 44,63.6',c:['#dcbcff','#7b4cf0']}
+  homes: {pin:[21.5,34.5],poly:'13.5,37 22,32.5 30.5,36 30.5,41.8 22,44.8 13.5,41.8',c:['#ffb23d','#ff5a14']},
+  school:{pin:[58,39], poly:'49.5,41 58,36.2 67.5,40.5 67.5,48.2 58,51.8 49.5,48.2',c:['#4fc3ff','#1c58ff']},
+  shop:  {pin:[85,55.5], poly:'76,58.5 86,54.2 97,57.5 97,64.8 86,67.8 76,63.8',c:['#ff72bd','#e0145f']},
+  park:  {pin:[37.5,64.5],poly:'28,66.5 38,62 50,65.3 48.5,70.8 36,73.2 28,70.2',c:['#6fe640','#0fa63e']},
+  lights:{pin:[53,58.5],poly:'44,61 52,57.4 62.5,58.4 62.5,61.6 52,64.6 44,63.6',c:['#c08cff','#6a2ae6']}
 };
 /* значки зданий: двухцветные, цвета берутся из --c1 (светлый) и --c2 (тёмный) пузыря */
 function glyph(id){
   if(id==='shop')return `<path class="a" d="M4.4 11.6h15.2v7.7a1.4 1.4 0 0 1-1.4 1.4H5.8a1.4 1.4 0 0 1-1.4-1.4z"/><path class="b" d="M5.2 3.4h13.6a1 1 0 0 1 .96.72l1.9 6.2c.1.3.14.6.14.9a2.9 2.9 0 0 1-5.2 1.6 2.9 2.9 0 0 1-4.6 0 2.9 2.9 0 0 1-4.6 0A2.9 2.9 0 0 1 2.2 11.2c0-.3.04-.6.14-.9l1.9-6.2a1 1 0 0 1 .96-.7z"/><rect class="b" x="9.6" y="14.6" width="4.8" height="6.1" rx="1.1"/>`;
   if(id==='homes')return `<path class="a" d="M5.2 11.2 12 5.4l6.8 5.8v8.2a1.4 1.4 0 0 1-1.4 1.4H6.6a1.4 1.4 0 0 1-1.4-1.4z"/><path class="b" d="M11.1 2.9a1.4 1.4 0 0 1 1.8 0l8.6 7.4a1.1 1.1 0 0 1-1.4 1.7L12 4.8 3.9 12a1.1 1.1 0 0 1-1.4-1.7z"/><rect class="b" x="9.9" y="14.2" width="4.2" height="6.6" rx="1.3"/>`;
-  if(id==='school')return `<path class="a" d="M5.8 12.1v4.6c0 1.7 2.8 3.4 6.2 3.4s6.2-1.7 6.2-3.4v-4.6L12 15.2z"/><path class="b" d="M11.2 3.6a1.7 1.7 0 0 1 1.6 0l9.4 4.9a.7.7 0 0 1 0 1.3l-9.4 4.9a1.7 1.7 0 0 1-1.6 0L1.8 9.8a.7.7 0 0 1 0-1.3z"/><rect class="b" x="20" y="10.4" width="1.7" height="6.4" rx=".85"/><circle class="b" cx="20.85" cy="17.4" r="1.4"/>`;
+  if(id==='school')return `<path class="a" d="M5.8 12.1v4.6c0 1.7 2.8 3.4 6.2 3.4s6.2-1.7 6.2-3.4v-4.6L12 15.2z"/><path class="b" d="M11.2 3.6a1.7 1.7 0 0 1 1.6 0l9.4 4.9a.7.7 0 0 1 0 1.3l-9.4 4.9a1.7 1.7 0 0 1-1.6 0L1.8 9.8a.7.7 0 0 1 0-1.3z"/><rect class="b" x="20" y="10.4" width="1.7" height="5.6" rx=".85"/><path class="b" d="M18.9 20l1.95-4.6L22.8 20z"/>`;
   if(id==='park')return `<path class="a" d="M20.4 3.2C10.6 3 4 8 4 14.6A6.3 6.3 0 0 0 10.3 21C17 21 21 14.4 20.4 3.2z"/><path class="s" d="M3.6 21.2c1.8-5.6 5.4-9.6 10.2-12.4"/><path class="s" d="M9.6 15.4l4.4.4M12.2 12l4-.2"/>`;
   return `<rect class="b" x="11" y="9.6" width="2" height="10.4" rx="1"/><rect class="b" x="7.8" y="19" width="8.4" height="2.6" rx="1.3"/><path class="a" d="M7.9 4.6h8.2l1.9 5.8H6z"/><path class="b" d="M7.2 1.8h9.6a1.2 1.2 0 0 1 .5 2.3l-.3.1H7l-.3-.1a1.2 1.2 0 0 1 .5-2.3z"/><circle class="w" cx="12" cy="7.8" r="1.5"/>`;
 }
@@ -377,7 +377,7 @@ function renderMap(){
   $('fx').innerHTML=fx;
   let pins='';
   IDS.forEach((id,k)=>{const sp=SPOTS[id],lv=S.lvl[id];
-    pins+=`<button class="pin${id===f?' on':''}${S.anim===id?' pop':''}" style="left:${sp.pin[0]}%;top:${sp.pin[1]}%;--c1:${sp.c[0]};--c2:${sp.c[1]};animation-delay:${k*.35}s" data-act="b" data-v="${id}" aria-label="${B[id].name}"><span class="ico3"><svg viewBox="0 0 24 24">${glyph(id)}</svg><span class="lv">${lv+1}</span></span></button>`;
+    pins+=`<button class="pin${id===f?' on':''}${S.anim===id?' pop':''}" style="left:${sp.pin[0]}%;top:${sp.pin[1]}%;--c1:${sp.c[0]};--c2:${sp.c[1]};animation-delay:${k*.35}s" data-act="b" data-v="${id}" aria-label="${B[id].name}"><span class="ico3"><svg viewBox="0 0 24 24">${glyph(id)}</svg><span class="lv">${fill(UI.lvShort||'Ур. {n}',{n:lv+1})}</span></span></button>`;
     for(let k2=0;k2<lv;k2++){const a=k2*2.1+.6,cx=(sp.pin[0]+Math.cos(a)*5.5).toFixed(1),cy=(sp.pin[1]+7+Math.sin(a)*3).toFixed(1);pins+=`<i class="twk" style="left:${cx}%;top:${cy}%;animation-delay:${(k2*.5).toFixed(1)}s"></i>`}
     if(S.anim===id){const cy=sp.pin[1]+8;pins+=`<div class="burst" style="left:${sp.pin[0]}%;top:${cy}%">${Array.from({length:10},(_,j)=>{const a=j/10*Math.PI*2;return `<i style="--dx:${(Math.cos(a)*60).toFixed(0)}px;--dy:${(Math.sin(a)*46).toFixed(0)}px"></i>`}).join('')}</div>`}
   });
@@ -418,16 +418,16 @@ function rating(){
 }
 
 /* ================= ЭКРАН ГОРОДА ================= */
-function hudSub(id,v,suffix){const el=$(id);el.textContent=(v>0?'+':v<0?'−':'')+Math.abs(v)+suffix;el.className='ssub'+(v<0?' neg':v===0?' zero':'')}
+const SUN_ON='<svg class="sun on" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#ff9d00" stroke-width="2.4" stroke-linecap="round"><path d="M12 1.6v2.8M12 19.6v2.8M1.6 12h2.8M19.6 12h2.8M4.6 4.6l2 2M17.4 17.4l2 2M19.4 4.6l-2 2M6.6 17.4l-2 2"/></g><circle cx="12" cy="12" r="5.8" fill="#ffd428" stroke="#f08a00" stroke-width="1.4"/><ellipse cx="10.2" cy="9.8" rx="2.2" ry="1.4" fill="#fff" opacity=".7" transform="rotate(-30 10.2 9.8)"/></svg>';
+const SUN_OFF='<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#d5cfe6" stroke-width="2.4" stroke-linecap="round"><path d="M12 1.6v2.8M12 19.6v2.8M1.6 12h2.8M19.6 12h2.8M4.6 4.6l2 2M17.4 17.4l2 2M19.4 4.6l-2 2M6.6 17.4l-2 2"/></g><circle cx="12" cy="12" r="5.8" fill="#e6e1f2" stroke="#d5cfe6" stroke-width="1.4"/></svg>';
+function sunsHTML(day){let h='';for(let i=1;i<=CFG.days;i++)h+=i<=day?SUN_ON:SUN_OFF;return h}
 function render(){
   if(!S)return;
   renderMap();
   if(S.anim)setTimeout(()=>{if(S){S.anim=null}},900);
-  $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('dayFill').style.width=Math.round(clamp(S.day/CFG.days,0,1)*100)+'%';
+  $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('daySuns').innerHTML=sunsHTML(S.day);
   $('coins').textContent=S.coins;$('happy').textContent=S.happy+'%';$('smile').innerHTML=smile(S.happy);
   $('people').textContent=S.people;$('peopleIco').innerHTML=PEOPLE;
-  const flow=dayMoney(),d0=S.d0||{people:S.people,happy:S.happy};
-  hudSub('coinSub',flow.inn-flow.upkeep,' '+UI.perDay);hudSub('peopleSub',S.people-d0.people,'');hudSub('happySub',S.happy-d0.happy,'');
   $('flowBtn').setAttribute('aria-label',UI.flowLabel);
   const r=today();
   $('req').className='req'+(S.reqDone?' done':'');
@@ -473,7 +473,7 @@ function support(id){
 
 /* ================= ДЕНЬ ================= */
 function morning(){
-  S.dec=CFG.decisions;S.reqDone=false;S.d0={people:S.people,happy:S.happy};render();
+  S.dec=CFG.decisions;S.reqDone=false;render();
   const r=today();
   const intro=S.day===1?`<ul class="howto">${UI.tips.map(s=>`<li>${fill(s,{aim:LEARN.aim})}</li>`).join('')}</ul>`:'';
   const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
@@ -830,7 +830,7 @@ function applyContent(d){
   document.querySelector('[data-music]').setAttribute('aria-label',UI.music);
   $('happyPill').title=UI.happyTitle;$('peoplePill').title=UI.peopleTitle;
   $('endBtn').textContent=UI.endDay;
-  $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});
+  $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});$('daySuns').innerHTML=sunsHTML(1);
 }
 function showContentError(){
   $('start').className='start';
