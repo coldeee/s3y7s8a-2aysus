@@ -341,7 +341,7 @@ function openB(id){
   <p>${b.desc}</p>
   ${max?'':`<div class="effs">${effList(id)}</div>`}
   ${max?'':`<div class="nobox"><b>${UI.ifSkip}</b>${b.no}</div>`}
-  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div></div>`;
+  <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button></div></div>`;
   $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();fitSoon();
 }
 function closeSheet(){$('sheetShade').classList.remove('show');if(S&&S.focus){S.focus=null;renderMap()}}
@@ -415,7 +415,7 @@ function askEvening(){
   if(!S)return;
   const end=S.day===CFG.days?UI.endLast:UI.endDay;
   const back=`<div class="actions"><button class="btn primary" data-act="eveningGo">${end}</button><button class="btn secondary" data-act="close">${UI.warnBack}</button></div>`;
-  const opt={dismiss:true,menu:false};
+  const opt={dismiss:true};
   if(S.dec>=CFG.decisions){
     show(`<h2>${UI.warnBothTitle}</h2><p>${fill(UI.warnBoth,{n:CFG.decisions})}</p>${back}`,opt);
     return;
@@ -640,7 +640,7 @@ function fitHud(){
 }
 function fitScreens(){fitHud();fitOverlay($('shade'));fitOverlay($('sheetShade'));fitOverlay($('confirm'));fitPanel($('result'))}
 function fitSoon(){fitScreens();requestAnimationFrame(fitScreens)}
-function show(html,opt){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');const menu=playing&&!(opt&&opt.menu===false)?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'';$('dialog').innerHTML=`<div class="stage">${html}${menu}</div>`;$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');fitSoon()}
+function show(html,opt){$('toast').classList.remove('show');$('dialog').innerHTML=`<div class="stage">${html}</div>`;$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');fitSoon()}
 function hide(){$('shade').classList.remove('show','dismiss')}
 let tt;function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1900)}
 function randomName(){return CITY_NAMES[Math.floor(Math.random()*CITY_NAMES.length)]}
