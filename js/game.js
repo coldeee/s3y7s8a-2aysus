@@ -301,14 +301,13 @@ function rating(){
 }
 
 /* ================= ЭКРАН ГОРОДА ================= */
-const SUN_ON='<svg class="sun on" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#ff9d00" stroke-width="2.4" stroke-linecap="round"><path d="M12 1.6v2.8M12 19.6v2.8M1.6 12h2.8M19.6 12h2.8M4.6 4.6l2 2M17.4 17.4l2 2M19.4 4.6l-2 2M6.6 17.4l-2 2"/></g><circle cx="12" cy="12" r="5.8" fill="#ffd428" stroke="#f08a00" stroke-width="1.4"/><ellipse cx="10.2" cy="9.8" rx="2.2" ry="1.4" fill="#fff" opacity=".7" transform="rotate(-30 10.2 9.8)"/></svg>';
-const SUN_OFF='<svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#d5cfe6" stroke-width="2.4" stroke-linecap="round"><path d="M12 1.6v2.8M12 19.6v2.8M1.6 12h2.8M19.6 12h2.8M4.6 4.6l2 2M17.4 17.4l2 2M19.4 4.6l-2 2M6.6 17.4l-2 2"/></g><circle cx="12" cy="12" r="5.8" fill="#e6e1f2" stroke="#d5cfe6" stroke-width="1.4"/></svg>';
-function sunsHTML(day){let h='';for(let i=1;i<=CFG.days;i++)h+=i<=day?SUN_ON:SUN_OFF;return h}
+const DAY_TXT=(d,n)=>fill(UI.dayBubble||'{day} день из {days}',{day:d,days:n});
+const dayFill=d=>{const e=$('dayFill');if(e)e.style.width=Math.round(clamp(d/CFG.days,0,1)*100)+'%'};
 function render(){
   if(!S)return;
   renderMap();
   if(S.anim)setTimeout(()=>{if(S){S.anim=null}},900);
-  $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('daySuns').innerHTML=sunsHTML(S.day);
+  $('dayPill').textContent=DAY_TXT(S.day,CFG.days);dayFill(S.day);
   $('coins').textContent=S.coins;$('happy').textContent=S.happy+'%';$('smile').innerHTML=smile(S.happy);
   $('people').textContent=S.people;$('peopleIco').innerHTML=PEOPLE;
   $('flowBtn').setAttribute('aria-label',UI.flowLabel);
@@ -786,7 +785,7 @@ function applyContent(d){
   document.querySelector('[data-sound]').setAttribute('aria-label',UI.sound);
   $('happyPill').title=UI.happyTitle;$('peoplePill').title=UI.peopleTitle;
   $('endBtn').textContent=UI.endDay;
-  $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});$('daySuns').innerHTML=sunsHTML(1);
+  $('dayPill').textContent=DAY_TXT(1,CFG.days);dayFill(1);
 }
 function showContentError(){
   $('start').className='start';
