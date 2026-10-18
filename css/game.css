@@ -85,8 +85,9 @@
 .nobox{background:#f4f0fb;border-radius:14px;padding:10px 12px;margin-top:10px;font-size:13px;color:#5b5480}
 .nobox b{display:block;color:var(--ink);margin-bottom:3px;font-size:14px}
 .sacts{display:grid;gap:8px;margin-top:14px}
-.x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:50%;background:#efe9fb;color:#5b5480;display:flex;align-items:center;justify-content:center}
+.x{position:absolute;right:14px;top:14px;z-index:2;width:34px;height:34px;border-radius:50%;background:#efe9fb;color:#5b5480;display:flex;align-items:center;justify-content:center}
 .x svg,.icon.exit svg{width:22px;height:22px;display:block}
+.x svg{pointer-events:none}
 /* диалог */
 .shade{position:absolute;inset:0;z-index:14;background:#1c0f4ac4;display:none;align-items:center;justify-content:center;padding:14px;overflow:hidden}
 .shade.show{display:flex}
