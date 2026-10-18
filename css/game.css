@@ -10,13 +10,13 @@
 .icon svg{width:20px;height:20px}
 .audio{display:flex;gap:4px;flex:none}
 .hud .icon{width:32px;height:32px;border-radius:12px}
-.hud .pill{padding:6px 6px;font-size:12px}
-#peopleIco .ico{width:15px;height:15px;vertical-align:-.2em}
+.hud .pill{height:32px;box-sizing:border-box;padding:0 8px;font-size:12px}
+#peopleIco .ico,#smile .ico,.money .coin{width:15px;height:15px;vertical-align:-.2em}
 .hud .icon svg{width:18px;height:18px}
 .pill{background:#fdfbff;border-radius:12px;padding:7px 8px;font-size:13px;font-weight:800;box-shadow:0 3px 10px #2a106040;white-space:nowrap;display:flex;align-items:center;gap:4px;flex:none}
-.money{background:linear-gradient(180deg,#fff7d9,#ffe28f);color:#5e4100;font-size:16px;border:1.5px solid #f0c64f;flex-direction:column;align-items:flex-end;gap:0;padding:4px 8px;line-height:1.05}
+.money{height:32px;box-sizing:border-box;background:linear-gradient(180deg,#fff7d9,#ffe28f);color:#5e4100;font-size:13px;border:1.5px solid #f0c64f;flex-direction:column;align-items:flex-end;justify-content:center;gap:0;padding:1px 8px;line-height:1}
 .money .cash{display:flex;align-items:center;gap:2px}
-.money .flow{display:flex;gap:5px;font-size:11px;font-weight:800}
+.money .flow{display:flex;gap:5px;font-size:10px;font-weight:800;line-height:1}
 .money .in{color:#2d8a3e}
 .money .out{color:#c4522a}
 .flowbox{position:absolute;top:calc(48px + env(safe-area-inset-top));right:8px;z-index:5;display:none;width:min(230px,72%);background:#fffdf8;border-radius:16px;padding:8px 12px;box-shadow:0 8px 22px #2a106050;text-align:left}
@@ -59,6 +59,7 @@
 .sheet p{font-size:14px;line-height:1.45;margin:10px 0}
 .effs{display:flex;flex-wrap:wrap;gap:6px}
 .eff{background:#f1ebff;border-radius:11px;padding:8px 10px;font-size:13px;font-weight:800;display:flex;align-items:center;gap:5px}
+.eff .coin,.eff .ico{width:16px;height:16px;vertical-align:middle;margin-left:0}
 .eff.cost{background:#fff1ee;color:#a2412c}
 .reqbox{background:#f6efff;border:1.5px solid #d9c2ff;border-radius:14px;padding:10px 12px;font-size:14px;margin-top:10px}
 .nobox{background:#f4f0fb;border-radius:14px;padding:10px 12px;margin-top:10px;font-size:13px;color:#5b5480}
@@ -209,8 +210,9 @@
 .brand{font-size:13px;font-weight:900;color:#0b8a55;letter-spacing:.6px}
 .preview{border-radius:24px;overflow:hidden;box-shadow:0 10px 26px #1d4b3a40;margin:10px 0 16px;background:#3d8fd8}
 .preview svg{display:block;width:100%;height:auto}
-.result{background:linear-gradient(180deg,#2a1466,#4a2aa8 30%,#f1ecff 30.1%)}
-.rhead{color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 6px;text-align:center}
+.result{background:linear-gradient(180deg,#2a1466,#4a2aa8)}
+.rhead{color:#fff;padding:calc(18px + env(safe-area-inset-top)) 18px 14px;text-align:center}
+.rhead .bench{color:#fff;font-size:15px;font-weight:700;line-height:1.35;margin:8px 8px 0}
 .rhead h1{margin:6px 0 2px;font-size:38px;color:#ffd65a}
 .rhead .learnline{color:#f6f0ff;font-size:14px;line-height:1.4;font-weight:700;margin:10px 4px 0}
 .record{margin-top:4px;font-size:15px;font-weight:800;color:#ffe9a0}

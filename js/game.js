@@ -413,7 +413,7 @@ function rating(){
   const coins=S.coins*weight('coins',1);
   const invest=S.st.shopEarned*weight('invest',1);
   const deposit=S.st.deposit*weight('deposit',1);
-  const fee=S.st.creditFee*weight('creditFee',1);
+  const fee=S.st.creditFee*weight('creditFee',0);
   return {happy,people,hearts,coins,invest,deposit,fee,pts:Math.max(0,happy+people+hearts+coins+invest+deposit-fee)};
 }
 
@@ -520,6 +520,23 @@ function applyEvent(key){
   if(c.after)show(`<h2>${fill(c.after.title,vars)}</h2><p>${fill(c.after.text,vars)}</p><div class="actions"><button class="btn primary" data-act="close">${UI.toCity}</button></div>`);
   else hide();
 }
+function upgradeAffordable(){
+  return IDS.some(id=>{const b=B[id],lv=S.lvl[id];return lv<b.cost.length&&S.coins>=b.cost[lv]});
+}
+function askEvening(){
+  if(!S)return;
+  const end=S.day===CFG.days?UI.endLast:UI.endDay;
+  const back=`<div class="actions"><button class="btn primary" data-act="close">${UI.warnBack}</button><button class="btn secondary" data-act="eveningGo">${end}</button></div>`;
+  if(S.dec>=CFG.decisions){
+    show(`<h2>${UI.warnBothTitle}</h2><p>${fill(UI.warnBoth,{n:CFG.decisions})}</p>${back}`);
+    return;
+  }
+  if(S.dec>0&&upgradeAffordable()){
+    show(`<h2>${UI.warnOneTitle}</h2><p>${UI.warnOne}</p>${back}`);
+    return;
+  }
+  evening();
+}
 function evening(){
   closeSheet();
   const r=today(),inc=income(),profit=inc.tax+inc.shop+inc.fest-inc.upkeep;
@@ -534,7 +551,7 @@ function evening(){
   if(S.st.built>0&&S.st.storm) markLearned();
   const resident=S.reqDone
     ?`<b>${r.who} ${gword('pleased',r.g)}</b><p>${fill(UI.hitLine,{heart:HEART,name:b.name,desc:b.desc})}</p>`
-    :`<b>${r.who} ${gword('upset',r.g)}</b><p>${fill(UI.missLine,{miss:r.miss,name:b.name,desc:b.desc,happy:CFG.missHappy,hint:last?UI.missLast:UI.missNext})}</p>`;
+    :`<b>${r.who} ${gword('upset',r.g)}</b><p>${fill(UI.missLine,{miss:r.miss,name:b.name,desc:b.desc,happy:CFG.missHappy,hint:last?'':UI.missNext})}</p>`;
   show(`<div class="kicker">${fill(UI.eveningKicker,{day:S.day})}</div><h2>${UI.eveningTitle}</h2>
   <div class="ledger"><div><span>${UI.taxLine}</span><b class="plus">+${inc.tax}</b></div>
   ${inc.shop?`<div><span>${UI.shopLine}</span><b class="plus">+${inc.shop}</b></div>`:''}
@@ -598,7 +615,7 @@ function finale(){
   const prev=sessionBest,fresh=pts>prev;if(fresh)sessionBest=pts;
   const record=prev>0&&fresh?fill(UI.recordNew,{pts}):prev>0&&pts<prev?fill(UI.recordLow,{pts,best:sessionBest}):fill(UI.record,{pts:sessionBest});
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
-  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="lvl">${benchLine}</p><p class="learnline">${LEARN.line}</p></div>
+  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
   <div class="rpanel np">${paper}
   <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
   <div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
@@ -662,12 +679,12 @@ function share(){
 }
 
 /* ================= ОБЩЕЕ ================= */
-function show(html){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');$('dialog').innerHTML=html+(playing?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'');$('shade').classList.add('show');$('dialog').scrollTop=0}
-function hide(){$('shade').classList.remove('show')}
+function show(html,opt){const playing=S&&$('result').classList.contains('hidden');$('toast').classList.remove('show');$('dialog').innerHTML=html+(playing?`<div class="actions"><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`:'');$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');$('dialog').scrollTop=0}
+function hide(){$('shade').classList.remove('show','dismiss')}
 let tt;function toast(m){const t=$('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1900)}
 function randomName(){return CITY_NAMES[Math.floor(Math.random()*CITY_NAMES.length)]}
 function nameDialog(){show(`<div class="kicker">${UI.nameKicker}</div><h2>${UI.nameTitle}</h2><input id="cityName" class="namein" maxlength="16" value="${randomName()}" aria-label="${UI.nameLabel}"><p class="lvl">${UI.nameHint}</p><div class="actions"><button class="btn big2" style="width:100%;font-size:19px;padding:17px" data-act="go">${UI.nameGo} <span class="arr">→</span></button><button class="btn secondary" data-act="rename">${UI.nameOther}</button></div>`)}
-function help(){show(`<h2>${UI.helpTitle}</h2><p class="learnline"><b>${LEARN.line}</b></p><ul class="howto">${UI.help.map(s=>`<li>${fill(s,{days:CFG.days,decisions:CFG.decisions,heart:HEART})}</li>`).join('')}</ul>
+function help(){show(`<h2>${UI.helpTitle}</h2><ul class="howto">${UI.help.map(s=>`<li>${fill(s,{days:CFG.days,decisions:CFG.decisions,heart:HEART})}</li>`).join('')}</ul>
 <div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}
 function toggleSfx(){sfxOn=!sfxOn;soundIcons();if(sfxOn){primeAudio(true);sfx.pop()}}
 function toggleMusic(){primeAudio(true);if(musicOn&&!music.timer){startMusic();return}musicOn=!musicOn;soundIcons();if(musicOn)startMusic();else stopMusic()}
@@ -759,10 +776,11 @@ document.addEventListener('click',e=>{
     case 'startday':hide();{const q=$('req');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop')}openEvent();break;
     case 'b':openB(v);break;
     case 'flow':toggleFlow();break;
-    case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?UI.reqDone:UI.reqOpen}</p><div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}break;
+    case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?UI.reqDone:UI.reqOpen}</p><div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`,{dismiss:true})}break;
     case 'support':support(v);break;
     case 'closeSheet':closeSheet();break;
-    case 'evening':evening();break;
+    case 'evening':askEvening();break;
+    case 'eveningGo':evening();break;
     case 'next':nextDay();break;
     case 'final':finale();break;
     case 'event':applyEvent(v);break;
@@ -777,6 +795,7 @@ document.addEventListener('click',e=>{
   }
 });
 $('sheetShade').addEventListener('click',e=>{if(e.target===$('sheetShade'))closeSheet()});
+$('shade').addEventListener('click',e=>{if(e.target===$('shade')&&$('shade').classList.contains('dismiss'))hide()});
 $('confirm').addEventListener('click',e=>{if(e.target===$('confirm'))hideConfirm()});
 function contentOk(d){
   if(!d||typeof d!=='object'||!d.cfg||!Array.isArray(d.cfg.stars)||!d.cfg.stars.length||!(d.cfg.days>=1))return false;
