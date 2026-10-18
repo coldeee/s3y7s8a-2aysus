@@ -750,10 +750,15 @@ function showContentError(){
   $('start').className='start';
   $('start').innerHTML='<div class="broken"><h2>Не получилось открыть игру</h2><p>Файл с текстами пустой или сломан. Нужен целый data/content.json рядом с игрой.</p></div>';
 }
+function bootFrom(data){
+  if(!contentOk(data)){showContentError();return}
+  applyContent(data);soundIcons();toStart();
+}
 function boot(){
-  fetch('data/content.json').then(r=>{if(!r.ok)throw new Error('load');return r.json()}).then(data=>{
-    if(!contentOk(data))throw new Error('shape');
-    applyContent(data);soundIcons();toStart();
-  }).catch(()=>showContentError());
+  const embedded=window.GAME_CONTENT;
+  if(location.protocol==='file:'){if(embedded)bootFrom(embedded);else showContentError();return}
+  fetch('data/content.json').then(r=>{if(!r.ok)throw new Error('load');return r.json()}).then(bootFrom).catch(()=>{
+    if(embedded)bootFrom(embedded);else showContentError();
+  });
 }
 boot();
