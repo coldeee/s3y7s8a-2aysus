@@ -14,27 +14,23 @@ const verb=(g,f,m,p)=>g==='f'?f:g==='m'?m:p;
 function shade(hex,f){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255].map(x=>Math.round(clamp(f<1?x*f:x+(255-x)*(f-1),0,255)));return '#'+c.map(x=>x.toString(16).padStart(2,'0')).join('')}
 
 /* ================= ЗВУК ================= */
-let sfxOn=true,musicOn=true,actx=null,sessionBest=0;
+let soundOn=false,actx=null,sessionBest=0;
 const MUSIC_SRC='audio/cidade-brilhante.mp3',MUSIC_VOL=.42;
 let musicEl=null,musicFade=0;
-function track(){if(musicEl)return musicEl;const a=new Audio(MUSIC_SRC);a.loop=true;a.preload='none';a.volume=0;a.addEventListener('ended',()=>{if(!musicOn)return;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})});musicEl=a;return a}
+function track(){if(musicEl)return musicEl;const a=new Audio(MUSIC_SRC);a.loop=true;a.preload='none';a.volume=0;a.addEventListener('ended',()=>{if(!soundOn)return;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})});musicEl=a;return a}
 function fadeMusic(to,ms){const a=musicEl;if(!a)return;cancelAnimationFrame(musicFade);if(Math.abs(a.volume-to)<.02){a.volume=to;if(to===0)a.pause();return}const from=a.volume,t0=performance.now();const step=now=>{const k=ms<=0?1:Math.min(1,(now-t0)/ms);a.volume=from+(to-from)*k;if(k<1)musicFade=requestAnimationFrame(step);else if(to===0){a.pause();a.volume=0}};musicFade=requestAnimationFrame(step)}
-function startMusic(){if(!musicOn)return;const a=track();const p=a.play();if(p&&p.catch)p.catch(()=>{});fadeMusic(MUSIC_VOL,a.volume>.2?220:800)}
+function startMusic(){if(!soundOn)return;const a=track();const p=a.play();if(p&&p.catch)p.catch(()=>{});fadeMusic(MUSIC_VOL,a.volume>.2?220:800)}
 function stopMusic(){if(!musicEl)return;if(musicEl.paused){musicEl.volume=0;return}fadeMusic(0,320)}
-function musicLive(){return !!(musicEl&&!musicEl.paused)}
-function primeAudio(manual){try{ensureCtx();if(!manual&&musicOn)startMusic()}catch(e){}}
+function primeAudio(){try{ensureCtx();if(soundOn)startMusic()}catch(e){}}
 function ensureCtx(){actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}
-function beep(f,d,type){if(!sfxOn)return;try{const ctx=ensureCtx(),o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+d)}catch(e){}}
+function beep(f,d,type){if(!soundOn)return;try{const ctx=ensureCtx(),o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+d)}catch(e){}}
 const sfx={coin(){beep(880,.07);setTimeout(()=>beep(1320,.09),70)},pop(){beep(520,.1,'triangle')},bad(){beep(196,.2,'triangle')},win(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12),i*110))}};
 
 const SND_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SND_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
-const NOTE_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" stroke="none"/><circle cx="17" cy="16" r="3" fill="currentColor" stroke="none"/></svg>';
-const NOTE_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M4 4l16 16"/></svg>';
 const X_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
 function soundIcons(){
-  document.querySelectorAll('[data-sfx]').forEach(b=>{b.innerHTML=sfxOn?SND_ON:SND_OFF;b.setAttribute('aria-pressed',sfxOn?'true':'false')});
-  document.querySelectorAll('[data-music]').forEach(b=>{b.innerHTML=musicOn?NOTE_ON:NOTE_OFF;b.setAttribute('aria-pressed',musicOn?'true':'false')});
+  document.querySelectorAll('[data-sound]').forEach(b=>{b.innerHTML=soundOn?SND_ON:SND_OFF;b.setAttribute('aria-pressed',soundOn?'true':'false')});
 }
 
 /* ================= МАЛЕНЬКИЕ ИКОНКИ ================= */
@@ -651,8 +647,7 @@ function randomName(){return CITY_NAMES[Math.floor(Math.random()*CITY_NAMES.leng
 function nameDialog(){show(`<div class="kicker">${UI.nameKicker}</div><h2>${UI.nameTitle}</h2><input id="cityName" class="namein" maxlength="16" value="${randomName()}" aria-label="${UI.nameLabel}"><p class="lvl">${UI.nameHint}</p><div class="actions"><button class="btn big2" style="width:100%;font-size:19px;padding:17px" data-act="go">${UI.nameGo} <span class="arr">→</span></button><button class="btn secondary" data-act="rename">${UI.nameOther}</button></div>`)}
 function help(){show(`<h2>${UI.helpTitle}</h2><ul class="howto">${UI.help.map(s=>`<li>${fill(s,{days:CFG.days,decisions:CFG.decisions,heart:HEART})}</li>`).join('')}</ul>
 <div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}
-function toggleSfx(){sfxOn=!sfxOn;soundIcons();if(sfxOn){primeAudio(true);sfx.pop()}}
-function toggleMusic(){primeAudio(true);if(musicOn&&!musicLive()){startMusic();return}musicOn=!musicOn;soundIcons();if(musicOn)startMusic();else stopMusic()}
+function toggleSound(){soundOn=!soundOn;soundIcons();if(soundOn){primeAudio();startMusic();sfx.pop()}else stopMusic()}
 function post(type,extra){try{window.postMessage(Object.assign({type},extra||{}),'*')}catch(e){}}
 function vibrate(){post('VIBRATION_EVENT')}
 let completedSent=false;
@@ -715,7 +710,7 @@ function toStart(){
   st.innerHTML=`<img class="sbg" src="img/start.webp" alt="" decoding="async" onerror="this.remove()">
   <div class="cl cl1">${cloudSVG(0,0)}</div><div class="cl cl2">${cloudSVG(1,1)}</div><div class="cl cl3">${cloudSVG(0,1)}</div><div class="cl cl4">${cloudSVG(1,0)}</div><div class="cl cl5">${cloudSVG(0,0)}</div><div class="cl cl6">${cloudSVG(1,1)}</div>
   <div class="stage">
-  <div class="sbar2"><button class="icon exit" data-act="exit" aria-label="${UI.exit}">${X_SVG}</button><div class="audio"><button class="icon" data-act="sfx" data-sfx aria-label="${UI.sfx}"></button><button class="icon" data-act="music" data-music aria-label="${UI.music}"></button></div></div>
+  <div class="sbar2"><button class="icon exit" data-act="exit" aria-label="${UI.exit}">${X_SVG}</button><div class="audio"><button class="icon" data-act="sound" data-sound aria-label="${UI.sound}"></button></div></div>
   <div class="logoWrap"><div class="logo2"><div class="bob">${logoSVG()}</div></div><div class="tag2">${esc(COPY.tag)}</div></div>
   <div class="cta2">${sessionBest?`<div class="best">${fill(UI.menuBest,{pts:sessionBest})}</div>`:''}<button class="big2" data-act="start">${UI.play} <span class="arr">→</span></button><button class="pill2" data-act="help"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1c0f4a" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2.5"/></svg>${esc(COPY.time)}</button></div>
   </div>`;
@@ -731,7 +726,7 @@ document.addEventListener('click',e=>{
   if(box&&box.classList.contains('show')&&!e.target.closest('#flowbox')&&!e.target.closest('#flowBtn'))hideFlow();
   const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
   const a=el.getAttribute('data-act'),v=el.getAttribute('data-v');
-  if(a!=='sfx'&&a!=='music'&&a!=='exit'&&a!=='help')primeAudio();
+  if(a!=='sound'&&a!=='exit'&&a!=='help')primeAudio();
   switch(a){
     case 'start':openStart();break;
     case 'again':newGame(S.city);break;
@@ -753,8 +748,7 @@ document.addEventListener('click',e=>{
     case 'event':applyEvent(v);break;
     case 'card':makeCard();break;
     case 'share':share();break;
-    case 'sfx':toggleSfx();break;
-    case 'music':toggleMusic();break;
+    case 'sound':toggleSound();break;
     case 'askLeave':askLeave();break;
     case 'stay':hideConfirm();break;
     case 'leave':leaveToMenu();break;
@@ -789,8 +783,7 @@ function applyContent(d){
   document.querySelector('#confirm [data-act=stay]').textContent=UI.stay;
   document.querySelector('#confirm [data-act=leave]').textContent=UI.toMenu;
   document.querySelector('[data-act=askLeave]').setAttribute('aria-label',UI.toMenu);
-  document.querySelector('[data-sfx]').setAttribute('aria-label',UI.sfx);
-  document.querySelector('[data-music]').setAttribute('aria-label',UI.music);
+  document.querySelector('[data-sound]').setAttribute('aria-label',UI.sound);
   $('happyPill').title=UI.happyTitle;$('peoplePill').title=UI.peopleTitle;
   $('endBtn').textContent=UI.endDay;
   $('dayPill').innerHTML=fill(UI.dayPill,{day:1,days:CFG.days});$('daySuns').innerHTML=sunsHTML(1);
