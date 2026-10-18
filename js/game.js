@@ -464,9 +464,10 @@ function morning(){
   if(S.day===CFG.stormDay){ev=`<div class="event"><b>${UI.stormTitle}</b><p>${fill(UI.stormText,{cost:mon(CFG.stormCost)})}</p></div>`;
     btns=`<button class="opt go" data-act="storm" data-v="pay" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="credit"><b>${UI.stormCredit}</b><small>${fill(UI.stormCreditNote,{cost:CFG.stormCost,extra:CFG.creditExtra,back:CFG.stormCost+CFG.creditExtra})}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
   const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
-  const plan=`<p class="lvl">${fill(UI.planLine,{coins:mon(S.coins),upkeep:income().upkeep,coin:COIN})}</p>`;
+  const plan=S.day===1?'':`<p class="lvl">${fill(UI.planLine,{coins:mon(S.coins),upkeep:income().upkeep,coin:COIN})}</p>`;
+  const portrait=S.day===1?'':face(r,54);
   show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}${plan}
-  <div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
+  <div class="quote">${portrait}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
 }
 function fest(yes){
   if(yes){S.coins-=CFG.festCost;S.fest=CFG.festDays;S.st.festSpent=CFG.festCost;S.news.push({w:2,t:UI.festNews});sfx.coin();
