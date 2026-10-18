@@ -389,13 +389,22 @@ const today=()=>RESIDENTS[S.day-1];
 function newGame(city){
   S={day:1,coins:CFG.startCoins,happy:CFG.startHappy,people:CFG.startPeople,lvl:{shop:0,homes:0,park:0,school:0,lights:0},
      city:city||CITY_NAMES[0],focus:null,log:[],news:[],spendBy:{shop:0,homes:0,park:0,school:0,lights:0},dec:CFG.decisions,reqDone:false,hearts:0,fest:0,anim:null,hist:[],
-     st:{shopSpent:0,shopEarned:0,festSpent:0,festEarned:0,storm:null,missed:[],built:0,spent:0}};
+     st:{shopSpent:0,shopEarned:0,festSpent:0,festEarned:0,storm:null,missed:[],built:0,spent:0,deposit:0,debt:0,creditFee:0}};
   $('start').classList.add('hidden');$('result').classList.add('hidden');
   morning();
 }
 function income(){return {tax:CFG.baseTax+Math.floor(S.people/CFG.perTax),shop:S.lvl.shop*B.shop.eff.income,fest:S.fest>0?CFG.festBonus:0,upkeep:IDS.reduce((a,id)=>a+S.lvl[id],0)}}
-function score(){return {happy:S.happy,people:Math.floor(S.people/10),hearts:S.hearts*CFG.heartPoints,coins:Math.floor(S.coins/2)}}
-const total=sc=>sc.happy+sc.people+sc.hearts+sc.coins;
+function weight(key,fallback){const r=CFG.rating||{};return r[key]==null?fallback:r[key]}
+function rating(){
+  const happy=S.happy*weight('happy',1);
+  const people=Math.floor(S.people/weight('peopleDiv',10))*weight('people',1);
+  const hearts=S.hearts*weight('hearts',CFG.heartPoints);
+  const coins=S.coins*weight('coins',1);
+  const invest=S.st.shopEarned*weight('invest',1);
+  const deposit=S.st.deposit*weight('deposit',1);
+  const fee=S.st.creditFee*weight('creditFee',1);
+  return {happy,people,hearts,coins,invest,deposit,fee,pts:Math.max(0,happy+people+hearts+coins+invest+deposit-fee)};
+}
 
 /* ================= ЭКРАН ГОРОДА ================= */
 function render(){
@@ -428,7 +437,7 @@ function openB(id){
   $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button>
   <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${lvl}</div></div></div>
   <p>${b.desc}</p>
-  ${max?'':`<div class="effs">${effList(id)}</div>`}
+  ${max?'':`<p class="lvl">${fill(UI.priceValue,{cost,coin:COIN})}</p><div class="effs">${effList(id)}</div>`}
   ${max?'':`<div class="nobox"><b>${UI.ifSkip}</b>${b.no}</div>`}
   <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`;
   $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();
@@ -453,9 +462,10 @@ function morning(){
   if(S.day===CFG.festDay){ev=`<div class="event"><b>${UI.festTitle}</b><p>${fill(UI.festText,{festDays:CFG.festDays})}</p></div>`;
     btns=`<button class="opt go" data-act="fest" data-v="yes" ${S.coins>=CFG.festCost?'':'disabled'}><b>${UI.festYes}</b><small>${fill(UI.festYesNote,{cost:CFG.festCost,bonus:CFG.festBonus,festDays:CFG.festDays})}</small></button><button class="opt" data-act="fest" data-v="no"><b>${UI.festNo}</b><small>${UI.festNoNote}</small></button>`}
   if(S.day===CFG.stormDay){ev=`<div class="event"><b>${UI.stormTitle}</b><p>${fill(UI.stormText,{cost:mon(CFG.stormCost)})}</p></div>`;
-    btns=`<button class="opt go" data-act="storm" data-v="yes" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
+    btns=`<button class="opt go" data-act="storm" data-v="pay" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="credit"><b>${UI.stormCredit}</b><small>${fill(UI.stormCreditNote,{cost:CFG.stormCost,extra:CFG.creditExtra,back:CFG.stormCost+CFG.creditExtra})}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
   const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
-  show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}
+  const plan=`<p class="lvl">${fill(UI.planLine,{coins:mon(S.coins),upkeep:income().upkeep,coin:COIN})}</p>`;
+  show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}${plan}
   <div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
 }
 function fest(yes){
@@ -464,9 +474,11 @@ function fest(yes){
   else{S.st.festSpent=0;show(`<h2>${UI.festSkipTitle}</h2><p>${UI.festSkipText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
   render();
 }
-function storm(yes){
-  if(yes){S.coins-=CFG.stormCost;S.st.storm='paid';S.news.push({w:1,t:UI.stormFixedNews});sfx.coin();
+function storm(mode){
+  if(mode==='pay'&&S.coins>=CFG.stormCost){S.coins-=CFG.stormCost;S.st.storm='paid';S.news.push({w:1,t:UI.stormFixedNews});sfx.coin();
     show(`<h2>${UI.stormFixedTitle}</h2><p>${UI.stormFixedText}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
+  else if(mode==='credit'){const back=CFG.stormCost+CFG.creditExtra;S.st.debt+=back;S.st.creditFee+=CFG.creditExtra;S.st.storm='credit';S.news.push({w:1,t:UI.stormCreditNews});sfx.coin();
+    show(`<h2>${UI.stormCreditTitle}</h2><p>${fill(UI.stormCreditText,{back,extra:CFG.creditExtra})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
   else{S.happy=clamp(S.happy+CFG.stormHappy,0,100);S.st.storm='skip';S.news.push({w:1.5,t:UI.stormSkipNews});sfx.bad();
     show(`<h2>${UI.stormSkipTitle}</h2><p>${fill(UI.stormSkipText,{happy:CFG.stormHappy})}</p><div class="actions"><button class="btn primary" data-act="startday">${UI.toCity}</button></div>`)}
   render();
@@ -474,12 +486,15 @@ function storm(yes){
 function evening(){
   closeSheet();
   const r=today(),inc=income(),profit=inc.tax+inc.shop+inc.fest-inc.upkeep;
+  const deposit=Math.floor(S.coins*CFG.depositPercent/100);
+  S.coins+=deposit;S.st.deposit+=deposit;
   S.coins+=profit;S.st.shopEarned+=inc.shop;S.st.festEarned+=inc.fest;if(S.fest>0)S.fest--;
+  let repaid=0;if(S.st.debt>0){repaid=Math.min(S.coins,S.st.debt);S.coins-=repaid;S.st.debt-=repaid}
   S.log.push({r,hit:S.reqDone});if(!S.reqDone){S.happy=clamp(S.happy+CFG.missHappy,0,100);S.st.missed.push(r.target);S.news.push({w:2.5,t:r.miss})}
   S.hist.push({day:S.day,coins:S.coins,happy:S.happy});
   render();sfx.pop();
   const last=S.day===CFG.days,b=B[r.target];
-  if(S.reqDone) markLearned();
+  if(S.st.built>0&&S.st.storm) markLearned();
   const resident=S.reqDone
     ?`<b>${r.who} ${gword('pleased',r.g)}</b><p>${fill(UI.hitLine,{heart:HEART,name:b.name,desc:b.desc})}</p>`
     :`<b>${r.who} ${gword('upset',r.g)}</b><p>${fill(UI.missLine,{miss:r.miss,name:b.name,desc:b.desc,happy:CFG.missHappy,hint:last?UI.missLast:UI.missNext})}</p>`;
@@ -488,10 +503,13 @@ function evening(){
   ${inc.shop?`<div><span>${UI.shopLine}</span><b class="plus">+${inc.shop}</b></div>`:''}
   ${inc.fest?`<div><span>${UI.festLine}</span><b class="plus">+${inc.fest}</b></div>`:''}
   <div><span>${UI.upkeepLine}</span><b class="minus">−${inc.upkeep}</b></div>
+  ${deposit?`<div><span>${UI.depositLine}</span><b class="plus">+${deposit}</b></div>`:''}
+  ${repaid?`<div><span>${UI.creditLine}</span><b class="minus">−${repaid}</b></div>`:''}
   <div class="total"><span>${UI.profit}</span><b class="${profit>=0?'plus':'minus'}">${profit>=0?'+':''}${profit}${COIN}</b></div></div>
   <p class="learnline">${LEARN.budget}</p>
   <div class="quote">${face(r,46)}<div>${resident}</div></div>
   <p>${fill(UI.budgetNow,{coins:mon(S.coins)})}</p>
+  ${S.st.debt?`<p class="lvl">${fill(UI.debtLeft,{debt:S.st.debt,coin:COIN})}</p>`:''}
   <div class="actions"><button class="btn primary" data-act="${last?'final':'next'}">${last?UI.toFinal:UI.toMorning}</button></div>`);
 }
 function nextDay(){S.day++;hide();morning()}
@@ -522,7 +540,7 @@ function paperHTML(n){
   <h3>${n[0]}</h3>
   ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="">${pins}</div></div><figcaption>${fill(UI.photoCap,{city:esc(S.city)})}</figcaption></figure>`:''}
   <div class="pcols"><div><div class="psec">${UI.secNews}</div>${n.slice(1).map(t=>`<div class="more">${t}</div>`).join('')||`<div class="more">${UI.paperQuiet}</div>`}</div>
-  <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
+  <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.final?S.final.pts:'—'}</b>${UI.numRating}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
   <div class="psec">${UI.secVoices}</div>
   <div class="ppl">${people.map(x=>`<div class="pp">${face(x.r,52,moodOf(x.hit))}<div><b>${x.r.who}</b><i>«${x.hit?x.r.thanks:x.r.complain}»</i></div></div>`).join('')}</div>
   <div class="pfoot"><div><div class="psec">${UI.secMayor}</div><b>${S.final.title}</b><br><small>${S.final.arch.d}</small></div><div class="wthr">${smile(S.happy)}<div><div class="psec">${UI.secForecast}</div><b>${fc[0]}</b><br><small>${fc[1]}</small></div></div></div>
@@ -530,19 +548,21 @@ function paperHTML(n){
 function wrap(x,text,maxW){const words=text.split(' '),lines=[];let cur='';words.forEach(w=>{const t=cur?cur+' '+w:w;if(x.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t});if(cur)lines.push(cur);return lines}
 function finale(){
   hide();
-  const sc=score(),pts=total(sc),stars=CFG.stars.filter(x=>pts>=x).length,inc=income();
+  const sc=rating(),pts=sc.pts,stars=CFG.stars.filter(x=>pts>=x).length,inc=income();
   const arch=archetype(),title=arch.t,news=headlines();
+  const bench=CFG.ratingBench,gap=Math.max(0,bench-pts);
+  const benchLine=pts>=bench?fill(UI.benchOver,{bench}):fill(UI.benchUnder,{bench,gap});
   const ins=[];
-  ins.push(fill(UI.insHearts,{hearts:S.hearts,days:CFG.days,heart:HEART,points:S.hearts*CFG.heartPoints}));
+  ins.push(fill(UI.insHearts,{hearts:S.hearts,days:CFG.days,heart:HEART,points:S.hearts*weight('hearts',CFG.heartPoints)}));
   if(S.st.shopSpent)ins.push(fill(UI.insShop,{spent:mon(S.st.shopSpent),earned:mon(S.st.shopEarned),tail:S.st.shopEarned>=S.st.shopSpent?UI.insShopPay:UI.insShopWait}));
   else ins.push(UI.insShopNone);
   if(S.st.festSpent)ins.push(fill(UI.insFest,{spent:S.st.festSpent,earned:S.st.festEarned,tail:S.st.festEarned>S.st.festSpent?UI.insFestGood:''}));
   else ins.push(fill(UI.insFestNone,{gain:CFG.festBonus*CFG.festDays,cost:CFG.festCost}));
-  ins.push(S.st.storm==='paid'?UI.insStormYes:UI.insStormNo);
+  ins.push(S.st.storm==='credit'?fill(UI.insStormCredit,{extra:CFG.creditExtra,back:CFG.stormCost+CFG.creditExtra,coin:COIN}):S.st.storm==='paid'?UI.insStormYes:UI.insStormNo);
   const prev=sessionBest,fresh=pts>prev;if(fresh)sessionBest=pts;
   const record=prev>0&&fresh?fill(UI.recordNew,{pts}):prev>0&&pts<prev?fill(UI.recordLow,{pts,best:sessionBest}):fill(UI.record,{pts:sessionBest});
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
-  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="learnline">${LEARN.line}</p></div>
+  $('result').innerHTML=`<div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:17px;font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="lvl">${benchLine}</p><p class="learnline">${LEARN.line}</p></div>
   <div class="rpanel np">${paper}
   <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
   <div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
@@ -550,12 +570,15 @@ function finale(){
     <div class="rrow"><span>${PEOPLE} ${fill(UI.rowPeople,{people:S.people})}</span><b>+${sc.people}</b></div>
     <div class="rrow"><span>${HEART} ${fill(UI.rowHearts,{hearts:S.hearts,days:CFG.days})}</span><b>+${sc.hearts}</b></div>
     <div class="rrow"><span><i class="coin"></i> ${fill(UI.rowBudget,{coins:S.coins})}</span><b>+${sc.coins}</b></div>
+    <div class="rrow"><span>${UI.rowInvest}</span><b>+${sc.invest}</b></div>
+    <div class="rrow"><span>${UI.rowDeposit}</span><b>+${sc.deposit}</b></div>
+    ${sc.fee?`<div class="rrow"><span>${UI.rowCredit}</span><b>−${sc.fee}</b></div>`:''}
     <div class="rrow"><span>${UI.rowIncome}</span><b>${inc.tax+inc.shop-inc.upkeep}${COIN}</b></div>
   </div>
   <div class="rpanel"><b>${UI.gotTitle}</b><ul class="ins">${ins.map(x=>`<li>${x}</li>`).join('')}</ul>
   <div class="actions"><button class="btn secondary" data-act="again">${UI.again}</button><button class="btn ghost" data-act="home">${UI.toMenu}</button></div></div>`;
   $('result').classList.remove('hidden');$('result').scrollTop=0;sfx.win();
-  if(S.hearts>0)markLearned();
+  if(S.st.built>0&&S.st.storm)markLearned();
   post('FINISH_EVENT');
 }
 function roundRect(x,X,Y,w,h,r,fill){x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();x.fillStyle=fill;x.fill()}
@@ -598,7 +621,7 @@ async function makeCard(){
   show(`<h2>${UI.cardTitle}</h2>${res.url?`<img class="cardimg" src="${res.url}" alt="${UI.cardAlt}">`:''}<div class="actions"><button class="btn primary" data-act="share">${UI.cardSend}</button><button class="btn secondary" data-act="close">${UI.back}</button></div>`);
 }
 function share(){
-  const text=fill(UI.shareText,{city:esc(S.city),pts:S.final.pts,title:S.final.title});
+  const text=fill(UI.shareText,{city:esc(S.city),pts:S.final.pts,title:S.final.title,bench:CFG.ratingBench});
   post('SHARING_EVENT',{text,image:S.cardUrl||undefined});vibrate();
 }
 
@@ -704,7 +727,7 @@ document.addEventListener('click',e=>{
     case 'next':nextDay();break;
     case 'final':finale();break;
     case 'fest':fest(v==='yes');break;
-    case 'storm':storm(v==='yes');break;
+    case 'storm':storm(v);break;
     case 'card':makeCard();break;
     case 'share':share();break;
     case 'sfx':toggleSfx();break;
@@ -734,6 +757,7 @@ function contentOk(d){
 function applyContent(d){
   CFG=d.cfg;if(!CFG.festDay)CFG.festDay=3;if(!CFG.stormDay)CFG.stormDay=5;
   if(!CFG.mayorHearts)CFG.mayorHearts=6;if(!CFG.mayorCoins)CFG.mayorCoins=110;if(!CFG.sunAt)CFG.sunAt=70;if(!CFG.cloudAt)CFG.cloudAt=40;
+  if(CFG.depositPercent==null)CFG.depositPercent=5;if(CFG.creditExtra==null)CFG.creditExtra=8;if(!CFG.ratingBench)CFG.ratingBench=240;if(!CFG.rating)CFG.rating={};
   B=d.buildings;IDS=BUILD_IDS.slice();RESIDENTS=d.residents;TOP_NEWS=d.news;CITY_NAMES=d.cities;LEARN=d.learn;COPY=d.copy;UI=d.ui;
   document.title=UI.gameTitle;
   $('confirmTitle').textContent=UI.leaveTitle;$('confirmText').textContent=UI.leavePlain;
