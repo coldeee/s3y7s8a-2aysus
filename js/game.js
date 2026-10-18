@@ -247,7 +247,7 @@ function fitMap(){
   let mw=W,mh=W/MAP_RATIO;if(mh<H){mh=H;mw=H*MAP_RATIO}
   Object.assign(w.style,{width:mw+'px',height:mh+'px',left:(W-mw)/2+'px',top:(H-mh)/2+'px'});
 }
-function setVh(){const h=window.innerHeight||document.documentElement.clientHeight;if(h>0)document.documentElement.style.setProperty('--vh',h/100+'px')}
+function setVh(){const r=document.documentElement,h=window.innerHeight||r.clientHeight,w=window.innerWidth||r.clientWidth;if(h>0){r.style.setProperty('--vh',h/100+'px');r.classList.toggle('land',w>=h)}}
 setVh();
 function onResize(){setVh();fitMap();fitScreens()}
 window.addEventListener('resize',onResize);

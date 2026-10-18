@@ -310,16 +310,15 @@
 .opening .logo2{transform:translateY(calc(-15*var(--vh)));opacity:1}
 .bob{width:100%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center}
 .bob svg{display:block;width:100%;height:100%;overflow:visible}
-.tag2{position:relative;z-index:1;flex:none;margin:clamp(-18px,calc(-2*var(--vh)),-6px) auto 0;max-width:100%;white-space:normal;text-align:center;transform:translateY(calc(-30*var(--vh))) rotate(-3deg)}
+.tag2{position:relative;z-index:1;flex:none;margin:clamp(-18px,calc(-2*var(--vh)),-6px) auto 0;max-width:100%;white-space:normal;text-align:center;transform:translateY(calc(-38*var(--vh))) rotate(-3deg)}
 .cta2{position:relative;z-index:1;left:auto;right:auto;bottom:auto;flex:none;width:100%;display:flex;flex-direction:column;align-items:stretch;gap:clamp(8px,calc(2*var(--vh)),16px);padding:0}
 .big2{width:100%;font-size:clamp(16px,calc(3.4*var(--vh)),23px);padding:clamp(12px,calc(2.2*var(--vh)),21px) 18px}
 .pill2{align-self:stretch;justify-content:center;max-width:100%;font-size:clamp(14px,calc(2.2*var(--vh)),16px);padding:clamp(8px,calc(1.6*var(--vh)),12px) 18px}
 .best{align-self:center;max-width:100%;white-space:normal;text-align:center}
 .broken{left:clamp(16px,5vw,80px);right:clamp(16px,5vw,80px);width:auto;top:50%;transform:translateY(-50%);max-height:calc(100% - 32px);overflow:hidden}
-@media (min-aspect-ratio:1/1){
-  .dialog .stage{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;column-gap:12px}
-  .dialog .stage>*{flex:1 1 100%;min-width:0}
-  .dialog .stage>.opt{flex:1 1 15rem}
-  .howto{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}
-  .howto li{margin:0}
-}
+/* Горизонталь: класс .land ставит JS. В WebView песочницы высота вьюпорта ~0, и min-aspect-ratio срабатывает в портрете. */
+.land .dialog .stage{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;column-gap:12px}
+.land .dialog .stage>*{flex:1 1 100%;min-width:0}
+.land .dialog .stage>.opt{flex:1 1 15rem}
+.land .howto{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}
+.land .howto li{margin:0}
