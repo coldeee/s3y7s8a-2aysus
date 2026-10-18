@@ -394,6 +394,16 @@ function newGame(city){
   morning();
 }
 function income(){return {tax:CFG.baseTax+Math.floor(S.people/CFG.perTax),shop:S.lvl.shop*B.shop.eff.income,fest:S.fest>0?CFG.festBonus:0,upkeep:IDS.reduce((a,id)=>a+S.lvl[id],0)}}
+function dayMoney(){const inc=income();return {inc,inn:inc.tax+inc.shop+inc.fest,upkeep:inc.upkeep}}
+function hideFlow(){const b=$('flowbox');if(b)b.classList.remove('show')}
+function toggleFlow(){
+  const box=$('flowbox');if(!S||!box)return;
+  if(box.classList.contains('show')){hideFlow();return}
+  const f=dayMoney(),rows=[[UI.flowTax,f.inc.tax],[UI.flowShop,f.inc.shop]];
+  if(f.inc.fest)rows.push([UI.flowFest,f.inc.fest]);
+  box.innerHTML=`<div class="ft">${UI.flowGet}</div>${rows.map(x=>`<div><span>${x[0]}</span><b class="in">+${x[1]}</b></div>`).join('')}<div class="ft">${UI.flowSpend}</div><div><span>${UI.flowKeep}</span><b class="out">−${f.upkeep}</b></div>`;
+  box.classList.add('show');
+}
 function weight(key,fallback){const r=CFG.rating||{};return r[key]==null?fallback:r[key]}
 function rating(){
   const happy=S.happy*weight('happy',1);
@@ -412,6 +422,7 @@ function render(){
   renderMap();
   if(S.anim)setTimeout(()=>{if(S){S.anim=null}},900);
   $('dayPill').innerHTML=fill(UI.dayPill,{day:S.day,days:CFG.days});$('coins').textContent=S.coins;$('happy').textContent=S.happy;$('smile').innerHTML=smile(S.happy);
+  const flow=dayMoney();$('dayIn').textContent='+'+flow.inn;$('dayOut').textContent='−'+flow.upkeep;$('flowBtn').setAttribute('aria-label',UI.flowLabel);
   const r=today();
   $('req').className='req'+(S.reqDone?' done':'');
   $('req').innerHTML=S.reqDone
@@ -430,14 +441,15 @@ function effList(id){
   return h;
 }
 function openB(id){
-  const b=B[id],lv=S.lvl[id],max=lv>=b.cost.length,cost=max?0:b.cost[lv],r=today();
+  hideFlow();
+  const b=B[id],lv=S.lvl[id],max=lv>=b.cost.length,cost=max?0:b.cost[lv];
   const can=!max&&S.dec>0&&S.coins>=cost;
   const why=max?UI.alreadyMax:S.dec<=0?UI.noDecisions:S.coins<cost?UI.noCoins:'';
   const lvl=max?fill(UI.levelMax,{level:lv+1}):fill(UI.levelStep,{from:lv+1,to:lv+2});
   $('sheet').innerHTML=`<button class="x" data-act="closeSheet" aria-label="${UI.close}">✕</button>
   <div class="shead"><span class="ico3 big3" style="--c1:${SPOTS[id].c[0]};--c2:${SPOTS[id].c[1]}"><svg viewBox="0 0 24 24">${glyph(id)}</svg></span><div><h2>${b.name}</h2><div class="lvl">${lvl}</div></div></div>
   <p>${b.desc}</p>
-  ${max?'':`<p class="lvl">${fill(UI.priceValue,{cost,coin:COIN})}</p><div class="effs">${effList(id)}</div>`}
+  ${max?'':`<div class="effs">${effList(id)}</div>`}
   ${max?'':`<div class="nobox"><b>${UI.ifSkip}</b>${b.no}</div>`}
   <div class="sacts"><button class="btn primary" data-act="support" data-v="${id}" ${can?'':'disabled'}>${max?UI.btnMax:fill(UI.btnUpgrade,{cost,coin:COIN})}</button>${why&&!max?`<div class="lvl" style="text-align:center">${why}</div>`:''}<button class="btn secondary" data-act="closeSheet">${UI.notNow}</button><button class="btn ghost" data-act="askLeave">${UI.toMenu}</button></div>`;
   $('sheetShade').classList.add('show');sfx.pop();S.focus=id;renderMap();vibrate();
@@ -464,9 +476,8 @@ function morning(){
   if(S.day===CFG.stormDay){ev=`<div class="event"><b>${UI.stormTitle}</b><p>${fill(UI.stormText,{cost:mon(CFG.stormCost)})}</p></div>`;
     btns=`<button class="opt go" data-act="storm" data-v="pay" ${S.coins>=CFG.stormCost?'':'disabled'}><b>${UI.stormYes}</b><small>${fill(UI.stormYesNote,{cost:mon(CFG.stormCost)})}${S.coins<CFG.stormCost?UI.stormShort:''}</small></button><button class="opt" data-act="storm" data-v="credit"><b>${UI.stormCredit}</b><small>${fill(UI.stormCreditNote,{cost:CFG.stormCost,extra:CFG.creditExtra,back:CFG.stormCost+CFG.creditExtra})}</small></button><button class="opt" data-act="storm" data-v="no"><b>${UI.stormNo}</b><small>${fill(UI.stormNoNote,{happy:CFG.stormHappy})}</small></button>`}
   const hello=S.day===1?UI.helloMayor:S.day===CFG.days?UI.lastDay:UI.goodMorning;
-  const plan=S.day===1?'':`<p class="lvl">${fill(UI.planLine,{coins:mon(S.coins),upkeep:income().upkeep,coin:COIN})}</p>`;
   const portrait=S.day===1?'':face(r,54);
-  show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}${plan}
+  show(`<div class="kicker">${fill(UI.dayKicker,{city:esc(S.city).toUpperCase(),day:S.day,days:CFG.days})}</div><h2>${hello}</h2>${intro}
   <div class="quote">${portrait}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p class="lvl" style="margin:4px 0 0">${UI.findBuilding}</p>${ev}<div class="actions">${btns}</div>`);
 }
 function fest(yes){
@@ -507,7 +518,6 @@ function evening(){
   ${deposit?`<div><span>${UI.depositLine}</span><b class="plus">+${deposit}</b></div>`:''}
   ${repaid?`<div><span>${UI.creditLine}</span><b class="minus">−${repaid}</b></div>`:''}
   <div class="total"><span>${UI.profit}</span><b class="${profit>=0?'plus':'minus'}">${profit>=0?'+':''}${profit}${COIN}</b></div></div>
-  <p class="learnline">${LEARN.budget}</p>
   <div class="quote">${face(r,46)}<div>${resident}</div></div>
   <p>${fill(UI.budgetNow,{coins:mon(S.coins)})}</p>
   ${S.st.debt?`<p class="lvl">${fill(UI.debtLeft,{debt:S.st.debt,coin:COIN})}</p>`:''}
@@ -708,6 +718,8 @@ function openStart(){
   setTimeout(nameDialog,1150);
 }
 document.addEventListener('click',e=>{
+  const box=$('flowbox');
+  if(box&&box.classList.contains('show')&&!e.target.closest('#flowbox')&&!e.target.closest('#flowBtn'))hideFlow();
   const el=e.target.closest('[data-act]');if(!el||el.disabled)return;
   const a=el.getAttribute('data-act'),v=el.getAttribute('data-v');
   if(a!=='sfx'&&a!=='music'&&a!=='exit'&&a!=='help')primeAudio();
@@ -721,6 +733,7 @@ document.addEventListener('click',e=>{
     case 'close':hide();break;
     case 'startday':hide();{const q=$('req');q.classList.remove('pop');void q.offsetWidth;q.classList.add('pop')}break;
     case 'b':openB(v);break;
+    case 'flow':toggleFlow();break;
     case 'req':if(S){const r=today();show(`<div class="quote">${face(r,54)}<div><b>${r.name}</b><p>«${r.text}»</p></div></div><p>${S.reqDone?UI.reqDone:UI.reqOpen}</p><div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}break;
     case 'support':support(v);break;
     case 'closeSheet':closeSheet();break;

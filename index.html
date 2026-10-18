@@ -19,9 +19,11 @@
       <button class="icon" data-act="sfx" data-sfx aria-label="Звуковые эффекты"></button>
       <button class="icon" data-act="music" data-music aria-label="Музыка"></button>
     </div>
+    <div class="pill" id="peoplePill" title="Жители"><span id="peopleIco"></span><span id="people">100</span></div>
     <div class="pill" id="happyPill" title="Счастье жителей"><span id="smile"></span><span id="happy">60</span></div>
-    <div class="pill money"><span id="coins">0</span><i class="coin"></i></div>
+    <button type="button" class="pill money" id="flowBtn" data-act="flow"><span class="cash"><span id="coins">0</span><i class="coin"></i></span><span class="flow"><span class="in" id="dayIn">+0</span><span class="out" id="dayOut">−0</span></span></button>
   </div>
+  <div class="flowbox" id="flowbox"></div>
   <button class="req" id="req" data-act="req"></button>
   <div class="bottom"><div class="decs" id="decs"></div><button class="btn primary" id="endBtn" data-act="evening">Закончить день</button></div>
   <div class="sheetShade" id="sheetShade"><section class="sheet" id="sheet"></section></div>

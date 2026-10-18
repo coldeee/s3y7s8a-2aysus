@@ -12,7 +12,18 @@
 .hud .icon{width:34px;height:34px;border-radius:12px}
 .hud .icon svg{width:18px;height:18px}
 .pill{background:#fdfbff;border-radius:12px;padding:7px 8px;font-size:13px;font-weight:800;box-shadow:0 3px 10px #2a106040;white-space:nowrap;display:flex;align-items:center;gap:4px;flex:none}
-.money{background:linear-gradient(180deg,#fff7d9,#ffe28f);color:#5e4100;font-size:16px;border:1.5px solid #f0c64f}
+.money{background:linear-gradient(180deg,#fff7d9,#ffe28f);color:#5e4100;font-size:16px;border:1.5px solid #f0c64f;flex-direction:column;align-items:flex-end;gap:0;padding:4px 8px;line-height:1.05}
+.money .cash{display:flex;align-items:center;gap:2px}
+.money .flow{display:flex;gap:5px;font-size:11px;font-weight:800}
+.money .in{color:#2d8a3e}
+.money .out{color:#c4522a}
+.flowbox{position:absolute;top:calc(48px + env(safe-area-inset-top));right:8px;z-index:5;display:none;width:min(230px,72%);background:#fffdf8;border-radius:16px;padding:8px 12px;box-shadow:0 8px 22px #2a106050;text-align:left}
+.flowbox.show{display:block}
+.flowbox .ft{font-size:12px;font-weight:900;color:#6b6252;margin-top:6px}
+.flowbox .ft:first-child{margin-top:0}
+.flowbox div{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:700;padding:3px 0}
+.flowbox .in{color:#2d8a3e}
+.flowbox .out{color:#c4522a}
 .spacer{flex:1}
 .req{position:absolute;top:calc(60px + env(safe-area-inset-top));left:10px;right:10px;z-index:3;background:#ffffffb8;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:20px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 6px 18px #2a106040;text-align:left;width:auto}
 .req.done{background:#efe7ffc0}
@@ -36,9 +47,9 @@
 /* лист здания */
 .sheetShade{position:absolute;inset:0;z-index:8;background:#1c0f4a80;display:none;align-items:flex-end}
 .sheetShade.show{display:flex}
-.sheet{width:100%;max-height:86%;overflow:auto;background:#fbf9ff;border-radius:26px 26px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));animation:up .25s ease}
+.sheet{position:relative;width:100%;max-height:86%;overflow:auto;background:#fbf9ff;border-radius:26px 26px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));animation:up .25s ease}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
-.shead{display:flex;gap:12px;align-items:center}
+.shead{display:flex;gap:12px;align-items:center;padding-right:40px}
 .sico{width:62px;height:62px;border-radius:18px;display:flex;align-items:center;justify-content:center;flex:none}
 .sico svg{width:44px;height:44px}
 .shead h2{margin:0;font-size:22px}
