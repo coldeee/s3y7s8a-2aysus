@@ -2,102 +2,6 @@
 /* Тексты, цены и жители — в data/content.json. Ключи зданий не переименовывать. */
 const BUILD_IDS=['homes','school','shop','lights','park'];
 let CFG,B,IDS,RESIDENTS,TOP_NEWS,CITY_NAMES,LEARN,COPY,UI,EVENTS;
-/* три своих темы по кругу. Не чужие мелодии. */
-const PIECES=[{bpm:80,loop:64,
-  bass:[
-    {at:0,f:'D2',len:8},{at:8,f:'A2',len:8},{at:16,f:'G2',len:8},{at:24,f:'A2',len:8},
-    {at:32,f:'B2',len:16},{at:48,f:'G2',len:8},{at:56,f:'A2',len:8}
-  ],
-  strings:[
-    {at:0,len:8,notes:['D3','F#3','A3'],v:.024},{at:8,len:8,notes:['A3','C#4','E4'],v:.02},
-    {at:16,len:8,notes:['G3','B3','D4'],v:.022},{at:24,len:8,notes:['A3','C#4','E4'],v:.02},
-    {at:32,len:16,notes:['B2','D3','F#3'],v:.014},{at:48,len:8,notes:['G3','B3','D4'],v:.016},
-    {at:56,len:8,notes:['A3','C#4','E4'],v:.018}
-  ],
-  walk:[
-    {at:0,len:8,notes:['D3','A3','F#3','A3']},{at:8,len:8,notes:['A3','E4','C#4','E4']},
-    {at:16,len:8,notes:['G3','D4','B3','D4']},{at:24,len:8,notes:['A3','E4','C#4','E4']}
-  ],
-  street:[
-    {at:0,f:'D4',len:2},{at:2,f:'F#4',len:2},{at:4,f:'E4',len:2},{at:6,f:'D4',len:2},
-    {at:8,f:'A3',len:2},{at:10,f:'B3',len:2},{at:12,f:'D4',len:4},
-    {at:16,f:'E4',len:2},{at:18,f:'F#4',len:2},{at:20,f:'G4',len:2},{at:22,f:'F#4',len:2},
-    {at:24,f:'E4',len:2},{at:26,f:'D4',len:2},{at:28,f:'C#4',len:2},{at:30,f:'D4',len:2}
-  ],
-  corner:[
-    {at:32,f:'B3',len:4},{at:36,f:'D4',len:2},{at:38,f:'C#4',len:2},
-    {at:40,f:'B3',len:4},{at:44,f:'A3',len:4},
-    {at:48,f:'G3',len:2},{at:50,f:'A3',len:2},{at:52,f:'B3',len:4},
-    {at:56,f:'D4',len:2},{at:58,f:'C#4',len:2},{at:60,f:'D4',len:4}
-  ],
-  piano:[
-    {at:32,notes:['B2','D3','F#3']},{at:36,notes:['B2','D3','F#3']},
-    {at:40,notes:['F#2','A2','C#3']},{at:44,notes:['F#2','B2','C#3']},
-    {at:48,notes:['G2','B2','D3']},{at:52,notes:['G2','B2','D3']},
-    {at:56,notes:['A2','C#3','E3']},{at:60,notes:['A2','C#3','E3']}
-  ]},
-{bpm:70,loop:64,
-  bass:[
-    {at:0,f:'C2',len:8},{at:8,f:'A2',len:8},{at:16,f:'F2',len:8},{at:24,f:'G2',len:8},
-    {at:32,f:'E2',len:8},{at:40,f:'A2',len:8},{at:48,f:'F2',len:8},{at:56,f:'G2',len:8}
-  ],
-  strings:[
-    {at:0,len:8,notes:['C3','E3','G3'],v:.02},{at:8,len:8,notes:['A2','C3','E3'],v:.018},
-    {at:16,len:8,notes:['F2','A2','C3'],v:.02},{at:24,len:8,notes:['G2','B2','D3'],v:.018},
-    {at:32,len:8,notes:['E3','G3','B3'],v:.014},{at:40,len:8,notes:['A2','C3','E3'],v:.014},
-    {at:48,len:8,notes:['F2','A2','C3'],v:.016},{at:56,len:8,notes:['G2','B2','D3'],v:.016}
-  ],
-  walk:[
-    {at:0,len:8,notes:['C3','G3','E3','G3']},{at:8,len:8,notes:['A2','E3','C3','E3']},
-    {at:16,len:8,notes:['F2','C3','A2','C3']},{at:24,len:8,notes:['G2','D3','B2','D3']}
-  ],
-  street:[
-    {at:0,f:'E4',len:2},{at:2,f:'D4',len:2},{at:4,f:'C4',len:4},
-    {at:8,f:'G3',len:2},{at:10,f:'A3',len:2},{at:12,f:'C4',len:4},
-    {at:16,f:'D4',len:2},{at:18,f:'C4',len:2},{at:20,f:'A3',len:2},{at:22,f:'G3',len:2},
-    {at:24,f:'A3',len:2},{at:26,f:'B3',len:2},{at:28,f:'C4',len:4}
-  ],
-  corner:[
-    {at:32,f:'B3',len:4},{at:36,f:'G3',len:4},
-    {at:40,f:'A3',len:2},{at:42,f:'C4',len:2},{at:44,f:'B3',len:4},
-    {at:48,f:'A3',len:4},{at:52,f:'G3',len:4},
-    {at:56,f:'A3',len:2},{at:58,f:'B3',len:2},{at:60,f:'C4',len:4}
-  ],
-  piano:[
-    {at:32,notes:['E2','G2','B2']},{at:36,notes:['E2','G2','B2']},
-    {at:40,notes:['A2','C3','E3']},{at:44,notes:['A2','C3','E3']},
-    {at:48,notes:['F2','A2','C3']},{at:52,notes:['F2','A2','C3']},
-    {at:56,notes:['G2','B2','D3']},{at:60,notes:['G2','B2','D3']}
-  ]},
-{bpm:66,loop:64,
-  bass:[
-    {at:0,f:'F2',len:8},{at:8,f:'C2',len:8},{at:16,f:'D2',len:8},{at:24,f:'A#2',len:8},
-    {at:32,f:'F2',len:16},{at:48,f:'C2',len:8},{at:56,f:'F2',len:8}
-  ],
-  strings:[
-    {at:0,len:8,notes:['F3','A3','C4'],v:.018},{at:8,len:8,notes:['C3','E3','G3'],v:.016},
-    {at:16,len:8,notes:['D3','F3','A3'],v:.016},{at:24,len:8,notes:['A#2','D3','F3'],v:.016},
-    {at:32,len:16,notes:['F3','A3','C4'],v:.013},{at:48,len:8,notes:['C3','E3','G3'],v:.014},
-    {at:56,len:8,notes:['F3','A3','C4'],v:.016}
-  ],
-  walk:[],
-  street:[
-    {at:0,f:'A3',len:4},{at:4,f:'C4',len:4},
-    {at:8,f:'D4',len:2},{at:10,f:'C4',len:2},{at:12,f:'A3',len:4},
-    {at:16,f:'G3',len:4},{at:20,f:'A3',len:4},
-    {at:24,f:'C4',len:2},{at:26,f:'D4',len:2},{at:28,f:'C4',len:4}
-  ],
-  corner:[
-    {at:32,f:'A3',len:4},{at:36,f:'F3',len:4},
-    {at:40,f:'G3',len:2},{at:42,f:'A3',len:2},{at:44,f:'C4',len:4},
-    {at:48,f:'A#3',len:4},{at:52,f:'A3',len:4},
-    {at:56,f:'G3',len:2},{at:58,f:'A3',len:2},{at:60,f:'F3',len:4}
-  ],
-  piano:[
-    {at:32,notes:['F2','A2','C3']},{at:40,notes:['F2','A2','C3']},
-    {at:48,notes:['C2','E2','G2']},{at:56,notes:['F2','A2','C3']}
-  ]}];
-
 /* ================= УТИЛИТЫ ================= */
 const $=id=>document.getElementById(id);
 function pl(n,f){n=Math.abs(n)%100;const n1=n%10;if(n>10&&n<20)return f[2];if(n1>1&&n1<5)return f[1];if(n1===1)return f[0];return f[2]}
@@ -111,38 +15,18 @@ function shade(hex,f){const n=parseInt(hex.slice(1),16),c=[n>>16,n>>8&255,n&255]
 
 /* ================= ЗВУК ================= */
 let sfxOn=true,musicOn=true,actx=null,sessionBest=0;
-const music={timer:null,next:0,step:0,ix:0,out:null,nodes:[]};
-function hz(n){const pc={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};const m=/^([A-G]#?)(\d)$/.exec(n);return 440*Math.pow(2,(((+m[2]+1)*12+pc[m[1]])-69)/12)}
+const MUSIC_SRC='audio/cidade-brilhante.mp3',MUSIC_VOL=.42;
+let musicEl=null,musicFade=0;
+function track(){if(musicEl)return musicEl;const a=new Audio(MUSIC_SRC);a.loop=true;a.preload='none';a.volume=0;a.addEventListener('ended',()=>{if(!musicOn)return;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})});musicEl=a;return a}
+function fadeMusic(to,ms){const a=musicEl;if(!a)return;cancelAnimationFrame(musicFade);if(Math.abs(a.volume-to)<.02){a.volume=to;if(to===0)a.pause();return}const from=a.volume,t0=performance.now();const step=now=>{const k=ms<=0?1:Math.min(1,(now-t0)/ms);a.volume=from+(to-from)*k;if(k<1)musicFade=requestAnimationFrame(step);else if(to===0){a.pause();a.volume=0}};musicFade=requestAnimationFrame(step)}
+function startMusic(){if(!musicOn)return;const a=track();const p=a.play();if(p&&p.catch)p.catch(()=>{});fadeMusic(MUSIC_VOL,a.volume>.2?220:800)}
+function stopMusic(){if(!musicEl)return;if(musicEl.paused){musicEl.volume=0;return}fadeMusic(0,320)}
+function musicLive(){return !!(musicEl&&!musicEl.paused)}
+function primeAudio(manual){try{ensureCtx();if(!manual&&musicOn)startMusic()}catch(e){}}
 function ensureCtx(){actx=actx||new(window.AudioContext||window.webkitAudioContext)();if(actx.state==='suspended')actx.resume();return actx}
 function beep(f,d,type){if(!sfxOn)return;try{const ctx=ensureCtx(),o=ctx.createOscillator(),g=ctx.createGain();o.type=type||'sine';o.frequency.value=f;g.gain.setValueAtTime(.07,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+d)}catch(e){}}
 const sfx={coin(){beep(880,.07);setTimeout(()=>beep(1320,.09),70)},pop(){beep(520,.1,'triangle')},bad(){beep(196,.2,'triangle')},win(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.12),i*110))}};
-function musicOut(){
-  if(music.out)return music.out;
-  const ctx=ensureCtx(),g=ctx.createGain(),tone=ctx.createBiquadFilter(),dry=ctx.createGain(),wet=ctx.createGain();
-  const d1=ctx.createDelay(1),d2=ctx.createDelay(1),fb=ctx.createGain(),damp=ctx.createBiquadFilter();
-  g.gain.value=.0001;tone.type='lowpass';tone.frequency.value=1850;tone.Q.value=.45;
-  dry.gain.value=.84;wet.gain.value=.34;d1.delayTime.value=.27;d2.delayTime.value=.41;fb.gain.value=.24;
-  damp.type='lowpass';damp.frequency.value=1000;
-  g.connect(tone);tone.connect(dry);dry.connect(ctx.destination);
-  tone.connect(d1);d1.connect(damp);damp.connect(wet);wet.connect(ctx.destination);damp.connect(fb);fb.connect(d2);d2.connect(damp);
-  music.out=g;return g}
-function voice(freq,time,dur,vol,attack,detune,type){const o=actx.createOscillator(),g=actx.createGain(),a=Math.max(.02,Math.min(attack,dur*.45));o.type=type||'sine';o.frequency.value=freq;if(detune)o.detune.value=detune;g.gain.setValueAtTime(.0001,time);g.gain.exponentialRampToValueAtTime(vol,time+a);g.gain.exponentialRampToValueAtTime(.0001,time+dur);o.connect(g);g.connect(music.out);o.start(time);o.stop(time+dur+.04);music.nodes.push(o)}
-function playBass(name,time,dur){const f=hz(name);voice(f,time,dur*.98,.055,dur*.18,0,'sine');voice(f*2,time,dur*.98,.024,dur*.22,0,'sine')}
-function playStrings(notes,time,dur,vol){const v=vol||.02;notes.forEach(n=>{const f=hz(n);voice(f,time,dur*.97,v,dur*.32,-8,'triangle');voice(f,time,dur*.97,v*.85,dur*.36,8,'triangle')})}
-function playPluck(name,time){voice(hz(name),time,.55,.018,.02,0,'triangle')}
-function playPiano(notes,time){notes.forEach((n,k)=>{const f=hz(n);voice(f,time+k*.04,1.7,.032,.018,0,'triangle')})}
-function playClarinet(name,time,dur,vol){
-  const f=hz(name),o=actx.createOscillator(),g=actx.createGain(),lfo=actx.createOscillator(),lg=actx.createGain(),a=Math.min(.22,Math.max(.08,dur*.18));
-  o.type='sine';o.frequency.value=f;lfo.type='sine';lfo.frequency.value=3.2;lg.gain.value=f*.0035;
-  lfo.connect(lg);lg.connect(o.frequency);
-  g.gain.setValueAtTime(.0001,time);g.gain.exponentialRampToValueAtTime(vol||.04,time+a);g.gain.exponentialRampToValueAtTime(.0001,time+dur);
-  o.connect(g);g.connect(music.out);o.start(time);lfo.start(time);o.stop(time+dur+.05);lfo.stop(time+dur+.05);music.nodes.push(o,lfo);
-  if(f*3<1400)voice(f*3,time,dur*.85,.006,a,0,'sine')}
-function tuneNow(){let tune=PIECES[music.ix];if(music.step>=tune.loop){music.ix=(music.ix+1)%PIECES.length;music.step=0;tune=PIECES[music.ix]}return tune}
-function pumpMusic(){if(!actx||!music.timer)return;try{const now=actx.currentTime;if(music.next<now)music.next=now+.02;const horizon=now+.35;while(music.next<horizon){const tune=tuneNow(),beat=60/tune.bpm,i=music.step,t=music.next;tune.bass.forEach(n=>{if(n.at===i)playBass(n.f,t,beat*n.len)});tune.strings.forEach(n=>{if(n.at===i)playStrings(n.notes,t,beat*n.len,n.v)});tune.street.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.04)});tune.corner.forEach(n=>{if(n.at===i)playClarinet(n.f,t,beat*n.len,.028)});tune.piano.forEach(n=>{if(n.at===i)playPiano(n.notes,t)});const step=tune.walk.find(a=>i>=a.at&&i<a.at+a.len);if(step)playPluck(step.notes[(i-step.at)%step.notes.length],t);music.next+=beat;music.step++}}catch(e){}}
-function startMusic(){if(!musicOn||music.timer)return;const ctx=ensureCtx(),out=musicOut(),t=ctx.currentTime;out.gain.cancelScheduledValues(t);out.gain.setValueAtTime(Math.max(out.gain.value,.0001),t);out.gain.linearRampToValueAtTime(.8,t+1.2);music.next=t+.08;music.step=0;music.timer=setInterval(pumpMusic,90);pumpMusic()}
-function stopMusic(){if(music.timer){clearInterval(music.timer);music.timer=null}if(music.out&&actx){const t=actx.currentTime;music.out.gain.cancelScheduledValues(t);music.out.gain.setValueAtTime(Math.max(music.out.gain.value,.0001),t);music.out.gain.linearRampToValueAtTime(.0001,t+.35)}const old=music.nodes.splice(0);setTimeout(()=>old.forEach(o=>{try{o.stop()}catch(e){}}),380);music.step=0}
-function primeAudio(manual){try{ensureCtx();if(!manual&&musicOn)startMusic()}catch(e){}}
+
 const SND_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
 const SND_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 const NOTE_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor" stroke="none"/><circle cx="17" cy="16" r="3" fill="currentColor" stroke="none"/></svg>';
@@ -762,7 +646,7 @@ function nameDialog(){show(`<div class="kicker">${UI.nameKicker}</div><h2>${UI.n
 function help(){show(`<h2>${UI.helpTitle}</h2><ul class="howto">${UI.help.map(s=>`<li>${fill(s,{days:CFG.days,decisions:CFG.decisions,heart:HEART})}</li>`).join('')}</ul>
 <div class="actions"><button class="btn primary" data-act="close">${UI.ok}</button></div>`)}
 function toggleSfx(){sfxOn=!sfxOn;soundIcons();if(sfxOn){primeAudio(true);sfx.pop()}}
-function toggleMusic(){primeAudio(true);if(musicOn&&!music.timer){startMusic();return}musicOn=!musicOn;soundIcons();if(musicOn)startMusic();else stopMusic()}
+function toggleMusic(){primeAudio(true);if(musicOn&&!musicLive()){startMusic();return}musicOn=!musicOn;soundIcons();if(musicOn)startMusic();else stopMusic()}
 function post(type,extra){try{window.postMessage(Object.assign({type},extra||{}),'*')}catch(e){}}
 function vibrate(){post('VIBRATION_EVENT')}
 let completedSent=false;
