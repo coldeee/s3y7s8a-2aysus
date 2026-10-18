@@ -16,8 +16,8 @@
       <div class="daycard" id="dayCard">
         <span class="dcity"><svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="dcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fdcff"/><stop offset="1" stop-color="#3f7cff"/></linearGradient></defs><rect width="40" height="40" rx="12" fill="url(#dcg)"/><circle cx="31" cy="9.5" r="3.4" fill="#ffe27a"/><rect x="6.5" y="17" width="9" height="16" rx="1.6" fill="#fff"/><rect x="17.5" y="9" width="9.5" height="24" rx="1.6" fill="#ffe9a8"/><rect x="28.5" y="20" width="6" height="13" rx="1.6" fill="#fff"/><g fill="#6b8fe8"><rect x="9" y="20" width="2" height="2.4" rx=".5"/><rect x="11.8" y="20" width="2" height="2.4" rx=".5"/><rect x="9" y="25" width="2" height="2.4" rx=".5"/><rect x="11.8" y="25" width="2" height="2.4" rx=".5"/><rect x="20" y="12.5" width="2" height="2.4" rx=".5"/><rect x="23" y="12.5" width="2" height="2.4" rx=".5"/><rect x="20" y="18" width="2" height="2.4" rx=".5"/><rect x="23" y="18" width="2" height="2.4" rx=".5"/><rect x="20" y="23.5" width="2" height="2.4" rx=".5"/><rect x="23" y="23.5" width="2" height="2.4" rx=".5"/></g><rect x="4" y="32" width="32" height="4.5" rx="2.25" fill="#4cc27a"/></svg></span>
         <div class="dmain">
-          <div class="dtop"><span class="dtxt" id="dayPill">День 1 из 7</span><svg class="dsun" viewBox="0 0 24 24" aria-hidden="true"><g stroke="#ffb020" stroke-width="2.2" stroke-linecap="round"><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M19.2 4.8l-1.8 1.8M6.6 17.4l-1.8 1.8"/></g><circle cx="12" cy="12" r="5.6" fill="#ffd23f" stroke="#f29a12" stroke-width="1.2"/></svg></div>
-          <div class="dbar"><i id="dayFill"></i></div>
+          <div class="dtop"><span class="dtxt" id="dayPill">День 1 из 7</span></div>
+          <div class="suns" id="daySuns"></div>
         </div>
       </div>
       <div class="spacer"></div>
@@ -28,9 +28,9 @@
       <button class="icon exit" data-act="askLeave" aria-label="В меню">✕</button>
     </div>
     <div class="hrow stats">
-      <button type="button" class="stat money" id="flowBtn" data-act="flow"><span class="sico2 gold"><i class="coin"></i></span><span class="sbody"><span class="sval" id="coins">0</span><span class="ssub" id="coinSub">+0</span></span></button>
-      <div class="stat" id="peoplePill" title="Жители"><span class="sico2 green" id="peopleIco"></span><span class="sbody"><span class="sval" id="people">100</span><span class="ssub" id="peopleSub">0</span></span></div>
-      <div class="stat" id="happyPill" title="Счастье жителей"><span class="sico2" id="smile"></span><span class="sbody"><span class="sval" id="happy">60</span><span class="ssub" id="happySub">0</span></span></div>
+      <button type="button" class="stat money" id="flowBtn" data-act="flow"><span class="sico2 gold"><i class="coin"></i></span><span class="sbody"><span class="sval" id="coins">0</span></span></button>
+      <div class="stat" id="peoplePill" title="Жители"><span class="sico2 green" id="peopleIco"></span><span class="sbody"><span class="sval" id="people">100</span></span></div>
+      <div class="stat" id="happyPill" title="Счастье жителей"><span class="sico2" id="smile"></span><span class="sbody"><span class="sval" id="happy">60</span></span></div>
     </div>
   </div>
   <div class="flowbox" id="flowbox"></div>
