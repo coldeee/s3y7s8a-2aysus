@@ -290,8 +290,9 @@
 .pcols{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
 .pcols>div,.pfoot,.pp{min-width:0}
 .paper h3,.paper .more,.pp i{overflow-wrap:break-word}
-.result{display:block}
-.result>.stage{display:flex;flex-direction:column}
+/* итоги: газета в полный рост, экран скроллится, а не ужимается */
+.result{display:block;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.result>.stage{display:flex;flex-direction:column;max-width:480px;margin:0 auto}
 .rhead{padding:calc(clamp(8px,calc(1.6*var(--vh)),18px) + env(safe-area-inset-top)) clamp(12px,3vw,32px) clamp(6px,calc(1*var(--vh)),14px)}
 .rhead h1{font-size:clamp(26px,calc(5*var(--vh)),38px)}
 .stars{font-size:clamp(28px,calc(5*var(--vh)),44px)}
@@ -300,9 +301,6 @@
 .result .rpanel{margin:0}
 .rrow{min-width:0;gap:8px}
 .rrow span{min-width:0}
-.result .thumb{height:clamp(64px,calc(16*var(--vh)),180px);aspect-ratio:auto;margin-top:6px}
-.result .thumb .in{inset:0;top:0;height:100%;aspect-ratio:auto}
-.result .thumb img{width:100%;height:100%;object-fit:cover;object-position:center 35%}
 .cardimg{display:block;width:auto;max-width:100%;max-height:calc(54*var(--vh));height:auto;margin:8px auto 0;object-fit:contain}
 .start>.stage{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;min-height:0;padding:calc(8px + env(safe-area-inset-top)) clamp(10px,3vw,28px) calc(12px + env(safe-area-inset-bottom));overflow:hidden}
 .sbar2{position:relative;top:auto;left:auto;right:auto;flex:none;width:100%;z-index:4}
@@ -319,8 +317,6 @@
 .best{align-self:center;max-width:100%;white-space:normal;text-align:center}
 .broken{left:clamp(16px,5vw,80px);right:clamp(16px,5vw,80px);width:auto;top:50%;transform:translateY(-50%);max-height:calc(100% - 32px);overflow:hidden}
 @media (min-aspect-ratio:1/1){
-  .rbody{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);align-items:start}
-  .rside{display:flex;flex-direction:column;gap:clamp(6px,calc(1.2*var(--vh)),12px);min-width:0}
   .dialog .stage{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;column-gap:12px}
   .dialog .stage>*{flex:1 1 100%;min-width:0}
   .dialog .stage>.opt{flex:1 1 15rem}

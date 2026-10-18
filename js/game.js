@@ -520,7 +520,7 @@ function finale(){
   </div>
   <div class="rpanel"><b>${UI.gotTitle}</b><ul class="ins">${ins.map(x=>`<li>${x}</li>`).join('')}</ul>
   <div class="actions"><button class="btn secondary" data-act="again">${UI.again}</button><button class="btn ghost" data-act="home">${UI.toMenu}</button></div></div></div></div></div>`;
-  $('result').classList.remove('hidden');sfx.win();fitSoon();
+  $('result').classList.remove('hidden');$('result').scrollTop=0;sfx.win();fitSoon();
   if(S.st.built>0&&S.st.storm)markLearned();
   post('FINISH_EVENT');
 }
@@ -615,16 +615,6 @@ function fitOverlay(shade){
   fitStage(stage,innerW,innerH);
   bindFitImages(stage);
 }
-function fitPanel(box){
-  if(!box||box.classList.contains('hidden')||getComputedStyle(box).display==='none')return;
-  const stage=box.querySelector(':scope > .stage');
-  if(!stage)return;
-  const bcs=getComputedStyle(box);
-  const innerH=Math.max(1,box.clientHeight-parseFloat(bcs.paddingTop)-parseFloat(bcs.paddingBottom));
-  const innerW=Math.max(1,box.clientWidth-parseFloat(bcs.paddingLeft)-parseFloat(bcs.paddingRight));
-  fitStage(stage,innerW,innerH);
-  bindFitImages(stage);
-}
 function fitHud(){
   const hud=document.querySelector('.hud'),req=$('req'),bottom=document.querySelector('.bottom'),app=$('app');
   if(!hud||!bottom||!app)return;
@@ -639,7 +629,7 @@ function fitHud(){
   if(req&&getComputedStyle(req).display!=='none')req.style.zoom=z;
   bottom.style.zoom=z;
 }
-function fitScreens(){fitHud();fitOverlay($('shade'));fitOverlay($('sheetShade'));fitOverlay($('confirm'));fitPanel($('result'))}
+function fitScreens(){fitHud();fitOverlay($('shade'));fitOverlay($('sheetShade'));fitOverlay($('confirm'))}
 function fitSoon(){fitScreens();requestAnimationFrame(fitScreens)}
 function show(html,opt){$('toast').classList.remove('show');$('dialog').innerHTML=`<div class="stage">${html}</div>`;$('shade').classList.toggle('dismiss',!!(opt&&opt.dismiss));$('shade').classList.add('show');fitSoon()}
 function hide(){$('shade').classList.remove('show','dismiss')}
