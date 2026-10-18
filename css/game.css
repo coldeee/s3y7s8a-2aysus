@@ -1,3 +1,5 @@
+/* --vh: 1% высоты экрана. JS подставляет px: в WebView с wrap_content dvh/vh считаются как 0. */
+:root{--vh:1dvh}
 #app{position:fixed;inset:0;width:auto;max-width:none;min-height:0;margin:0;overflow:hidden;background:#3d8fd8}
 .map{position:absolute;inset:0}
 .map svg{width:100%;height:100%;display:block}
@@ -176,11 +178,11 @@
 .opening .cl6{transform:translate(40%,70%)}
 .logo2{position:absolute;left:5%;right:5%;top:calc(9% + env(safe-area-inset-top));transition:transform 1s cubic-bezier(.5,0,.75,0),opacity .8s}
 .logo2 svg{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 18px #2a106066)}
-.tag2{position:relative;margin:-26px auto 0;width:max-content;max-width:100%;background:linear-gradient(100deg,#ffb3f6,#c48cff 45%,#8f7dff 80%,#9fc4ff);color:#1c0f4a;font-weight:900;font-size:15px;letter-spacing:.2px;padding:9px 16px;border-radius:999px;transform:translateY(-30dvh) rotate(-3deg);box-shadow:inset 0 0 0 1.5px #ffffffb0,inset 0 0 12px #ffffff80,0 6px 16px #2a106055}
+.tag2{position:relative;margin:-26px auto 0;width:max-content;max-width:100%;background:linear-gradient(100deg,#ffb3f6,#c48cff 45%,#8f7dff 80%,#9fc4ff);color:#1c0f4a;font-weight:900;font-size:15px;letter-spacing:.2px;padding:9px 16px;border-radius:999px;transform:translateY(calc(-30*var(--vh))) rotate(-3deg);box-shadow:inset 0 0 0 1.5px #ffffffb0,inset 0 0 12px #ffffff80,0 6px 16px #2a106055}
 .bob{animation:bob 3.2s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-8px) rotate(-1deg)}}
 .coins{animation:bob 2.4s ease-in-out infinite}
-.opening .logo2{transform:translateY(-75vh) scale(.8);opacity:0}
+.opening .logo2{transform:translateY(calc(-75*var(--vh))) scale(.8);opacity:0}
 .sbar2{position:absolute;top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;display:flex;justify-content:space-between;transition:opacity .4s}
 .cta2{position:absolute;left:14px;right:14px;bottom:calc(30px + env(safe-area-inset-bottom));display:grid;gap:16px;transition:transform .6s,opacity .5s}
 .opening .cta2,.opening .sbar2{opacity:0;transform:translateY(30px)}
@@ -266,59 +268,59 @@
 .hud,.req,.bottom,.dialog,.sheet,.rpanel,.paper{min-width:0;max-width:100%}
 .dialog,.sheet{min-height:0}
 .stage{position:relative;width:100%;min-width:0;overflow-wrap:break-word}
-.req .face{width:clamp(36px,7dvh,50px);height:clamp(36px,7dvh,50px)}
-.req b{font-size:clamp(13px,2dvh,14px)}
-.req p{margin:2px 0 0;font-size:clamp(12px,1.8dvh,13px)}
-.bottom{padding:clamp(6px,1.2dvh,10px) clamp(10px,3vw,28px) calc(clamp(8px,1.4dvh,12px) + env(safe-area-inset-bottom))}
-.decs{font-size:clamp(12px,1.8dvh,14px);margin:clamp(2px,.6dvh,4px) 0 clamp(4px,1dvh,9px)}
-.btn{width:100%;border-radius:16px;padding:clamp(10px,1.8dvh,14px) 14px;font-size:clamp(14px,2.1dvh,16px)}
-.actions,.sacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:clamp(8px,1.5dvh,14px)}
+.req .face{width:clamp(36px,calc(7*var(--vh)),50px);height:clamp(36px,calc(7*var(--vh)),50px)}
+.req b{font-size:clamp(13px,calc(2*var(--vh)),14px)}
+.req p{margin:2px 0 0;font-size:clamp(12px,calc(1.8*var(--vh)),13px)}
+.bottom{padding:clamp(6px,calc(1.2*var(--vh)),10px) clamp(10px,3vw,28px) calc(clamp(8px,calc(1.4*var(--vh)),12px) + env(safe-area-inset-bottom))}
+.decs{font-size:clamp(12px,calc(1.8*var(--vh)),14px);margin:clamp(2px,calc(.6*var(--vh)),4px) 0 clamp(4px,calc(1*var(--vh)),9px)}
+.btn{width:100%;border-radius:16px;padding:clamp(10px,calc(1.8*var(--vh)),14px) 14px;font-size:clamp(14px,calc(2.1*var(--vh)),16px)}
+.actions,.sacts{display:flex;flex-wrap:wrap;gap:8px;margin-top:clamp(8px,calc(1.5*var(--vh)),14px)}
 .actions .btn,.sacts .btn{flex:1 1 12rem;width:auto}
-.shade{padding:clamp(8px,2dvh,20px) clamp(10px,3vw,36px)}
-.dialog{padding:clamp(12px,2dvh,20px) clamp(12px,3vw,32px)}
-.dialog h2{font-size:clamp(18px,3.4dvh,22px);margin:clamp(2px,.5dvh,6px) 0 clamp(4px,1dvh,10px)}
-.dialog p{font-size:clamp(13px,2dvh,15px)}
-.sheet{padding:clamp(12px,2dvh,18px) clamp(12px,3vw,32px) calc(clamp(12px,2dvh,18px) + env(safe-area-inset-bottom));border-radius:clamp(16px,3vw,26px) clamp(16px,3vw,26px) 0 0}
-.shead h2{font-size:clamp(18px,3.2dvh,22px)}
-.howto li{font-size:clamp(13px,2dvh,15px);padding:clamp(6px,1.1dvh,10px) 12px clamp(6px,1.1dvh,10px) 42px;margin:clamp(4px,.7dvh,6px) 0}
-.quote{padding:clamp(6px,1.1dvh,10px) clamp(8px,2vw,12px);margin:clamp(4px,.8dvh,8px) 0}
-.ledger div{font-size:clamp(13px,2dvh,15px);padding:clamp(4px,.7dvh,7px) 0}
-.opt{padding:clamp(8px,1.2dvh,11px) 12px}
-.flowbox{max-height:46dvh;overflow:hidden}
+.shade{padding:clamp(8px,calc(2*var(--vh)),20px) clamp(10px,3vw,36px)}
+.dialog{padding:clamp(12px,calc(2*var(--vh)),20px) clamp(12px,3vw,32px)}
+.dialog h2{font-size:clamp(18px,calc(3.4*var(--vh)),22px);margin:clamp(2px,calc(.5*var(--vh)),6px) 0 clamp(4px,calc(1*var(--vh)),10px)}
+.dialog p{font-size:clamp(13px,calc(2*var(--vh)),15px)}
+.sheet{padding:clamp(12px,calc(2*var(--vh)),18px) clamp(12px,3vw,32px) calc(clamp(12px,calc(2*var(--vh)),18px) + env(safe-area-inset-bottom));border-radius:clamp(16px,3vw,26px) clamp(16px,3vw,26px) 0 0}
+.shead h2{font-size:clamp(18px,calc(3.2*var(--vh)),22px)}
+.howto li{font-size:clamp(13px,calc(2*var(--vh)),15px);padding:clamp(6px,calc(1.1*var(--vh)),10px) 12px clamp(6px,calc(1.1*var(--vh)),10px) 42px;margin:clamp(4px,calc(.7*var(--vh)),6px) 0}
+.quote{padding:clamp(6px,calc(1.1*var(--vh)),10px) clamp(8px,2vw,12px);margin:clamp(4px,calc(.8*var(--vh)),8px) 0}
+.ledger div{font-size:clamp(13px,calc(2*var(--vh)),15px);padding:clamp(4px,calc(.7*var(--vh)),7px) 0}
+.opt{padding:clamp(8px,calc(1.2*var(--vh)),11px) 12px}
+.flowbox{max-height:calc(46*var(--vh));overflow:hidden}
 .pcols{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
 .pcols>div,.pfoot,.pp{min-width:0}
 .paper h3,.paper .more,.pp i{overflow-wrap:break-word}
 .result{display:block}
 .result>.stage{display:flex;flex-direction:column}
-.rhead{padding:calc(clamp(8px,1.6dvh,18px) + env(safe-area-inset-top)) clamp(12px,3vw,32px) clamp(6px,1dvh,14px)}
-.rhead h1{font-size:clamp(26px,5dvh,38px)}
-.stars{font-size:clamp(28px,5dvh,44px)}
-.rbody{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(6px,1.2dvh,12px);padding:0 clamp(8px,2.5vw,28px) clamp(8px,1.6dvh,16px);min-width:0}
+.rhead{padding:calc(clamp(8px,calc(1.6*var(--vh)),18px) + env(safe-area-inset-top)) clamp(12px,3vw,32px) clamp(6px,calc(1*var(--vh)),14px)}
+.rhead h1{font-size:clamp(26px,calc(5*var(--vh)),38px)}
+.stars{font-size:clamp(28px,calc(5*var(--vh)),44px)}
+.rbody{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(6px,calc(1.2*var(--vh)),12px);padding:0 clamp(8px,2.5vw,28px) clamp(8px,calc(1.6*var(--vh)),16px);min-width:0}
 .rside{display:contents}
 .result .rpanel{margin:0}
 .rrow{min-width:0;gap:8px}
 .rrow span{min-width:0}
-.result .thumb{height:clamp(64px,16dvh,180px);aspect-ratio:auto;margin-top:6px}
+.result .thumb{height:clamp(64px,calc(16*var(--vh)),180px);aspect-ratio:auto;margin-top:6px}
 .result .thumb .in{inset:0;top:0;height:100%;aspect-ratio:auto}
 .result .thumb img{width:100%;height:100%;object-fit:cover;object-position:center 35%}
-.cardimg{display:block;width:auto;max-width:100%;max-height:54dvh;height:auto;margin:8px auto 0;object-fit:contain}
+.cardimg{display:block;width:auto;max-width:100%;max-height:calc(54*var(--vh));height:auto;margin:8px auto 0;object-fit:contain}
 .start>.stage{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:space-between;min-height:0;padding:calc(8px + env(safe-area-inset-top)) clamp(10px,3vw,28px) calc(12px + env(safe-area-inset-bottom));overflow:hidden}
 .sbar2{position:relative;top:auto;left:auto;right:auto;flex:none;width:100%;z-index:4}
 .logoWrap{flex:1 1 auto;min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:visible;position:relative;z-index:2;transition:transform 1s cubic-bezier(.5,0,.75,0),opacity .8s}
-.opening .logoWrap{transform:translateY(-75vh) scale(.8);opacity:0}
-.logo2{position:relative;left:auto;right:auto;top:auto;z-index:2;flex:1 1 auto;min-height:0;width:min(100%,68dvh,640px);display:flex;align-items:center;justify-content:center;overflow:visible;transform:translateY(-15dvh);pointer-events:none}
-.opening .logo2{transform:translateY(-15dvh);opacity:1}
+.opening .logoWrap{transform:translateY(calc(-75*var(--vh))) scale(.8);opacity:0}
+.logo2{position:relative;left:auto;right:auto;top:auto;z-index:2;flex:1 1 auto;min-height:0;width:min(100%,calc(68*var(--vh)),640px);display:flex;align-items:center;justify-content:center;overflow:visible;transform:translateY(calc(-15*var(--vh)));pointer-events:none}
+.opening .logo2{transform:translateY(calc(-15*var(--vh)));opacity:1}
 .bob{width:100%;height:100%;min-height:0;display:flex;align-items:center;justify-content:center}
 .bob svg{display:block;width:100%;height:100%;overflow:visible}
-.tag2{position:relative;z-index:1;flex:none;margin:clamp(-18px,-2dvh,-6px) auto 0;max-width:100%;white-space:normal;text-align:center;transform:translateY(-30dvh) rotate(-3deg)}
-.cta2{position:relative;z-index:1;left:auto;right:auto;bottom:auto;flex:none;width:100%;display:flex;flex-direction:column;align-items:stretch;gap:clamp(8px,2dvh,16px);padding:0}
-.big2{width:100%;font-size:clamp(16px,3.4dvh,23px);padding:clamp(12px,2.2dvh,21px) 18px}
-.pill2{align-self:stretch;justify-content:center;max-width:100%;font-size:clamp(14px,2.2dvh,16px);padding:clamp(8px,1.6dvh,12px) 18px}
+.tag2{position:relative;z-index:1;flex:none;margin:clamp(-18px,calc(-2*var(--vh)),-6px) auto 0;max-width:100%;white-space:normal;text-align:center;transform:translateY(calc(-30*var(--vh))) rotate(-3deg)}
+.cta2{position:relative;z-index:1;left:auto;right:auto;bottom:auto;flex:none;width:100%;display:flex;flex-direction:column;align-items:stretch;gap:clamp(8px,calc(2*var(--vh)),16px);padding:0}
+.big2{width:100%;font-size:clamp(16px,calc(3.4*var(--vh)),23px);padding:clamp(12px,calc(2.2*var(--vh)),21px) 18px}
+.pill2{align-self:stretch;justify-content:center;max-width:100%;font-size:clamp(14px,calc(2.2*var(--vh)),16px);padding:clamp(8px,calc(1.6*var(--vh)),12px) 18px}
 .best{align-self:center;max-width:100%;white-space:normal;text-align:center}
 .broken{left:clamp(16px,5vw,80px);right:clamp(16px,5vw,80px);width:auto;top:50%;transform:translateY(-50%);max-height:calc(100% - 32px);overflow:hidden}
 @media (min-aspect-ratio:1/1){
   .rbody{grid-template-columns:minmax(0,1.2fr) minmax(0,.9fr);align-items:start}
-  .rside{display:flex;flex-direction:column;gap:clamp(6px,1.2dvh,12px);min-width:0}
+  .rside{display:flex;flex-direction:column;gap:clamp(6px,calc(1.2*var(--vh)),12px);min-width:0}
   .dialog .stage{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:center;column-gap:12px}
   .dialog .stage>*{flex:1 1 100%;min-width:0}
   .dialog .stage>.opt{flex:1 1 15rem}

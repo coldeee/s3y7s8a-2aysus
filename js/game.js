@@ -18,7 +18,7 @@ let soundOn=false,actx=null,sessionBest=0;
 const MUSIC_SRC='audio/cidade-brilhante.mp3',MUSIC_VOL=.42;
 let musicEl=null,musicFade=0;
 function track(){if(musicEl)return musicEl;const a=new Audio(MUSIC_SRC);a.loop=true;a.preload='none';a.volume=0;a.addEventListener('ended',()=>{if(!soundOn)return;a.currentTime=0;const p=a.play();if(p&&p.catch)p.catch(()=>{})});musicEl=a;return a}
-function fadeMusic(to,ms){const a=musicEl;if(!a)return;cancelAnimationFrame(musicFade);if(Math.abs(a.volume-to)<.02){a.volume=to;if(to===0)a.pause();return}const from=a.volume,t0=performance.now();const step=now=>{const k=ms<=0?1:Math.min(1,(now-t0)/ms);a.volume=from+(to-from)*k;if(k<1)musicFade=requestAnimationFrame(step);else if(to===0){a.pause();a.volume=0}};musicFade=requestAnimationFrame(step)}
+function fadeMusic(to,ms){const a=musicEl;if(!a)return;cancelAnimationFrame(musicFade);if(Math.abs(a.volume-to)<.02){a.volume=to;if(to===0)a.pause();return}const from=a.volume,t0=performance.now();const step=now=>{const k=ms<=0?1:clamp((now-t0)/ms,0,1);a.volume=from+(to-from)*k;if(k<1)musicFade=requestAnimationFrame(step);else if(to===0){a.pause();a.volume=0}};musicFade=requestAnimationFrame(step)}
 function startMusic(){if(!soundOn)return;const a=track();const p=a.play();if(p&&p.catch)p.catch(()=>{});fadeMusic(MUSIC_VOL,a.volume>.2?220:800)}
 function stopMusic(){if(!musicEl)return;if(musicEl.paused){musicEl.volume=0;return}fadeMusic(0,320)}
 function primeAudio(){try{ensureCtx();if(soundOn)startMusic()}catch(e){}}
@@ -247,7 +247,9 @@ function fitMap(){
   let mw=W,mh=W/MAP_RATIO;if(mh<H){mh=H;mw=H*MAP_RATIO}
   Object.assign(w.style,{width:mw+'px',height:mh+'px',left:(W-mw)/2+'px',top:(H-mh)/2+'px'});
 }
-function onResize(){fitMap();fitScreens()}
+function setVh(){const h=window.innerHeight||document.documentElement.clientHeight;if(h>0)document.documentElement.style.setProperty('--vh',h/100+'px')}
+setVh();
+function onResize(){setVh();fitMap();fitScreens()}
 window.addEventListener('resize',onResize);
 if(window.visualViewport)visualViewport.addEventListener('resize',onResize);
 function renderMap(){
@@ -481,7 +483,7 @@ function paperHTML(n){
   <h3>${n[0]}</h3>
   ${MAP_OK?`<figure class="pphoto"><div class="thumb"><div class="in"><img src="${MAP_IMG}" alt="">${pins}</div></div><figcaption>${fill(UI.photoCap,{city:esc(S.city)})}</figcaption></figure>`:''}
   <div class="pcols"><div><div class="psec">${UI.secNews}</div>${n.slice(1).map(t=>`<div class="more">${t}</div>`).join('')||`<div class="more">${UI.paperQuiet}</div>`}</div>
-  <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.final?S.final.pts:'—'}</b>${UI.numRating}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
+  <div><div class="psec">${UI.secNumbers}</div><div class="pnum"><b>${S.final?S.final.pts:0}</b>${UI.numRating}</div><div class="pnum"><b>${S.people}</b>${UI.numPeople}</div><div class="pnum"><b>${S.happy}</b>${UI.numHappy}</div><div class="pnum"><b>${S.coins}</b>${UI.numCoins}</div><div class="pnum"><b>${S.hearts}/${CFG.days}</b>${UI.numHearts}</div></div></div>
   <div class="psec">${UI.secVoices}</div>
   <div class="ppl">${people.map(x=>`<div class="pp">${face(x.r,52,moodOf(x.hit))}<div><b>${x.r.who}</b><i>«${x.hit?x.r.thanks:x.r.complain}»</i></div></div>`).join('')}</div>
   <div class="pfoot"><div><div class="psec">${UI.secMayor}</div><b>${S.final.title}</b><br><small>${S.final.arch.d}</small></div><div class="wthr">${smile(S.happy)}<div><div class="psec">${UI.secForecast}</div><b>${fc[0]}</b><br><small>${fc[1]}</small></div></div></div>
@@ -503,7 +505,7 @@ function finale(){
   const prev=sessionBest,fresh=pts>prev;if(fresh)sessionBest=pts;
   const record=prev>0&&fresh?fill(UI.recordNew,{pts}):prev>0&&pts<prev?fill(UI.recordLow,{pts,best:sessionBest}):fill(UI.record,{pts:sessionBest});
   S.final={pts,stars,title,arch,news};const paper=paperHTML(news);
-  $('result').innerHTML=`<div class="stage"><div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:clamp(14px,2.2dvh,17px);font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
+  $('result').innerHTML=`<div class="stage"><div class="rhead"><div class="stars">${'★'.repeat(stars)}<span>${'★'.repeat(3-stars)}</span></div><h1>${stars>=2?UI.great:UI.okay}</h1><div style="font-size:clamp(14px,calc(2.2*var(--vh)),17px);font-weight:700">${fill(UI.cityPts,{city:esc(S.city),pts})}</div><div class="record">${record}</div><p class="bench">${benchLine}</p></div>
   <div class="rbody"><div class="rpanel np">${paper}
   <div class="actions"><button class="btn primary" data-act="card">${UI.sharePaper}</button></div></div>
   <div class="rside"><div class="rpanel"><div class="score">${fill(UI.scorePts,{pts})}</div>
@@ -574,7 +576,7 @@ function fitStage(stage,availW,availH){
   let s=1;
   for(let i=0;i<5;i++){
     stage.style.zoom='1';
-    stage.style.width=s>0.985?'100%':(100/s)+'%';
+    stage.style.width=s>0.985?'100%':(availW/s)+'px';
     const h=stage.scrollHeight,w=stage.scrollWidth;
     const next=Math.min(1,availH/Math.max(h,1),availW/Math.max(w,1));
     if(next>0.985){s=1;break}
@@ -583,7 +585,7 @@ function fitStage(stage,availW,availH){
   }
   s=Math.max(0.05,Math.min(1,s));
   stage.style.zoom='1';
-  stage.style.width=s>0.985?'100%':(100/s)+'%';
+  stage.style.width=s>0.985?'100%':(availW/s)+'px';
   const h=stage.scrollHeight,w=stage.scrollWidth;
   const finalS=Math.max(0.05,Math.min(1,availH/Math.max(h,1),availW/Math.max(w,1)));
   if(finalS>0.985){stage.style.zoom='1';stage.style.width='100%';return}
